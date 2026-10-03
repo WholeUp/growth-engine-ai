@@ -160,11 +160,23 @@ st.sidebar.markdown("""
 nav = st.sidebar.radio("Navigation", [
     "🎯 5-Agent Campaign Studio",
     "🤖 Autonomous AI Media Buyer",
+    "🕵️ Competitor Ad-Spy Engine",
     "📁 Campaign Vault & History",
     "⚙️ Guardrails & API Settings"
 ])
 
 st.sidebar.divider()
+from tools.dayparting import DaypartingEngine
+current_pacing = DaypartingEngine.get_current_pacing()
+pacing_color = "#34D399" if "PEAK" in current_pacing["phase"] else "#FBBF24" if "NORMAL" in current_pacing["phase"] else "#94A3B8"
+st.sidebar.markdown(f"""
+<div style="background: rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px;">
+    <div style="font-size:0.75rem; color:#94A3B8; font-weight:600;">⏰ LIVE DAYPARTING PACING:</div>
+    <div style="color:{pacing_color}; font-weight:700; font-size:0.9rem;">{current_pacing['status']}</div>
+    <div style="font-size:0.75rem; color:#CBD5E1;">{current_pacing['reason']}</div>
+</div>
+""", unsafe_allow_html=True)
+
 st.sidebar.caption("⚡ Connected Models:")
 st.sidebar.markdown(f"• **Meta Ad Account:** `{meta_manager.ad_account_id or 'Demo'}`\n• **LLM Brain:** `Gemini 2.5 Flash`\n• **Status:** `Active & Protected`")
 
@@ -326,6 +338,55 @@ elif nav == "🤖 Autonomous AI Media Buyer":
                 meta_manager.activate_ad(selected_ad)
                 st.success(f"Ad {selected_ad} set to ACTIVE")
                 st.rerun()
+
+        st.divider()
+        st.subheader("📑 9:00 PM Executive Report Generator")
+        from tools.report_generator import ExecutiveReportGenerator
+        if st.button("📄 Generate Today's Performance Report", use_container_width=True):
+            rep_gen = ExecutiveReportGenerator(agency_name="WholeUp Agency")
+            rep_text = rep_gen.generate_daily_executive_report(
+                account_name=f"WholeUp Live ({meta_manager.ad_account_id})",
+                total_spend=total_spend,
+                total_leads=total_leads,
+                ads_performance=ads_data,
+                actions_taken=[]
+            )
+            st.text_area("📋 WhatsApp-Ready Executive Summary (Copy & Send):", value=rep_text, height=260)
+
+# =========================================================================
+# TAB: COMPETITOR AD-SPY ENGINE
+# =========================================================================
+elif nav == "🕵️ Competitor Ad-Spy Engine":
+    st.markdown('<div class="glass-card-title">🕵️ Meta Ad Library Competitor Auto-Spy</div>', unsafe_allow_html=True)
+    st.write("Reverse-engineer long-running competitor ads, uncover high-converting offers, and exploit market gaps in Surat and Indian local niches.")
+
+    c_col1, c_col2 = st.columns(2)
+    with c_col1:
+        spy_niche = st.text_input("Competitor Niche / Business", value="Digital Marketing Agency")
+    with c_col2:
+        spy_loc = st.text_input("Target Geo / Market", value="Surat, Gujarat")
+
+    from tools.competitor_spy import CompetitorAdSpy
+    if st.button("🔍 Run Competitor Ad-Spy Intelligence", type="primary", use_container_width=True):
+        with st.spinner("Scanning competitor active ads and market gaps..."):
+            spy = CompetitorAdSpy()
+            data = spy.spy_on_niche(spy_niche, spy_loc)
+
+            st.success("✅ Competitor Intelligence Dossier Formulated!")
+
+            sc1, sc2 = st.columns(2)
+            with sc1:
+                st.subheader("⚠️ Common Competitor Weaknesses & Pitfalls")
+                for w in data["common_competitor_pitfalls"]:
+                    st.markdown(f"• {w}")
+
+                st.subheader("🎯 WholeUp's Winning Attack Angle")
+                st.info(data["recommended_angle_to_dominate"])
+
+            with sc2:
+                st.subheader("🔥 Long-Running Winning Competitor Hooks")
+                for h in data["top_competing_hooks"]:
+                    st.markdown(f"• **Hook:** `{h}`")
 
 # =========================================================================
 # TAB 3: CAMPAIGN VAULT & HISTORY
