@@ -1,6 +1,7 @@
 """
 WholeUp Agency: AI Growth Matrix & Autonomous Media Buyer Dashboard
 Enterprise-Grade UI with Modern Glassmorphism & Agency Presets
+100% Real Live Data Engine - Zero Simulated Mock Data.
 """
 
 import os
@@ -20,6 +21,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Initialize Session State for API credentials
+if "meta_access_token" not in st.session_state:
+    st.session_state.meta_access_token = settings.META_ACCESS_TOKEN
+if "meta_ad_account_id" not in st.session_state:
+    st.session_state.meta_ad_account_id = settings.META_AD_ACCOUNT_ID
 
 # Custom High-End SaaS & Agency Styling (Glassmorphism + Neon Accents)
 st.markdown("""
@@ -48,8 +55,8 @@ st.markdown("""
         font-weight: 500;
     }
 
-    /* Live Status Pill */
-    .status-pill {
+    /* Status Pills */
+    .status-pill-green {
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -63,12 +70,34 @@ st.markdown("""
         margin-bottom: 18px;
     }
 
-    .status-dot {
+    .status-pill-warning {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        color: #FBBF24;
+        padding: 5px 14px;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 18px;
+    }
+
+    .status-dot-green {
         width: 8px;
         height: 8px;
         background-color: #10B981;
         border-radius: 50%;
         box-shadow: 0 0 10px #10B981;
+    }
+
+    .status-dot-warning {
+        width: 8px;
+        height: 8px;
+        background-color: #FBBF24;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #FBBF24;
     }
 
     /* Glassmorphism Cards */
@@ -133,13 +162,25 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Instantiate Live Meta Manager with session credentials
+meta_manager = MetaAdsManager(
+    access_token=st.session_state.meta_access_token,
+    ad_account_id=st.session_state.meta_ad_account_id
+)
+
 # Header Section
-meta_manager = MetaAdsManager()
-status_label = f"LIVE META API CONNECTED: {meta_manager.ad_account_id}" if meta_manager.is_live else "SANDBOX SIMULATION MODE"
+if meta_manager.is_live:
+    pill_class = "status-pill-green"
+    dot_class = "status-dot-green"
+    status_label = f"LIVE META ACCOUNT LINKED: {meta_manager.ad_account_id}"
+else:
+    pill_class = "status-pill-warning"
+    dot_class = "status-dot-warning"
+    status_label = "META CREDENTIALS REQUIRED (PASTE IN SETTINGS)"
 
 st.markdown(f"""
-<div class="status-pill">
-    <div class="status-dot"></div>
+<div class="{pill_class}">
+    <div class="{dot_class}"></div>
     <span>{status_label}</span>
 </div>
 <div class="hero-title">WholeUp AI Growth Matrix & Media Buyer</div>
@@ -177,8 +218,8 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.sidebar.caption("⚡ Connected Models:")
-st.sidebar.markdown(f"• **Meta Ad Account:** `{meta_manager.ad_account_id or 'Demo'}`\n• **LLM Brain:** `Gemini 2.5 Flash`\n• **Status:** `Active & Protected`")
+st.sidebar.caption("⚡ Connected Status:")
+st.sidebar.markdown(f"• **Meta Ad Account:** `{meta_manager.ad_account_id or 'Not Set'}`\n• **LLM Brain:** `Gemini 2.5 Flash`\n• **Data Mode:** `100% Real Live Data`")
 
 # Global Orchestrator
 @st.cache_resource
@@ -282,76 +323,114 @@ if nav == "🎯 5-Agent Campaign Studio":
 # =========================================================================
 elif nav == "🤖 Autonomous AI Media Buyer":
     st.markdown('<div class="glass-card-title">🤖 24/7 Autonomous Ad Optimizer & Kill-Switch</div>', unsafe_allow_html=True)
-    st.write("Live algorithmic protection for Meta & Google ad spend. Automatically halts bleeders, scales high-ROAS winners, and flags fatigued creatives.")
+    st.write("Real-time algorithmic protection for Meta ad spend. Monitors live ads, detects bleeding creatives, and flags creative fatigue.")
 
-    ads_data = meta_manager.get_ad_metrics()
-    df = pd.DataFrame(ads_data)
+    # Date preset filter
+    dcol1, dcol2 = st.columns([1, 3])
+    with dcol1:
+        date_preset = st.selectbox(
+            "Metrics Date Range",
+            options=["last_30d", "today", "last_7d", "maximum"],
+            index=0,
+            format_func=lambda x: {
+                "last_30d": "📅 Last 30 Days",
+                "today": "⚡ Today",
+                "last_7d": "📅 Last 7 Days",
+                "maximum": "🌐 All Time / Lifetime"
+            }.get(x, x)
+        )
 
-    total_spend = df["spend"].sum() if "spend" in df else 0.0
-    total_leads = df["leads"].sum() if "leads" in df else 0
-    avg_cpc = df["cpc"].mean() if "cpc" in df else 0.0
-    active_count = len(df[df["status"] == "ACTIVE"]) if "status" in df else 0
+    # Fetch live data (Zero mock data returned)
+    ads_data = meta_manager.get_ad_metrics(date_preset=date_preset)
 
-    # Top Metric Bar
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Today's Ad Spend", f"₹{total_spend:,.2f}")
-    m2.metric("Total Conversions / Leads", f"{total_leads}")
-    m3.metric("Avg. CPC", f"₹{avg_cpc:.2f}")
-    m4.metric("Active Ads Monitored", f"{active_count} of {len(df)}")
-
-    st.write(" ")
-
-    # Live Data Table
-    st.subheader("📊 Live Monitored Ads")
-    display_cols = ["id", "ad_name", "status", "spend", "leads", "cpc", "ctr", "frequency", "roas"]
-    existing_cols = [c for c in display_cols if c in df.columns]
-    st.dataframe(df[existing_cols], use_container_width=True)
-
-    # Action Panel
-    colA, colB = st.columns([2, 1])
-    with colA:
-        st.subheader("⚡ Run Optimizer Rules")
-        dry_run_opt = st.checkbox("Dry Run Mode (Inspect & create recommendations without pausing live ads)", value=False)
-        
-        if st.button("🛡️ Execute Kill & Scale Audit", type="primary", use_container_width=True):
-            with st.spinner("AI Media Buyer evaluating spend rules..."):
-                results = orchestrator.run_ad_autopilot(dry_run=dry_run_opt)
-                st.success(f"Audit Complete! {results['actions_count']} automated actions processed.")
-
-                if results["actions"]:
-                    for act in results["actions"]:
-                        st.info(f"**[{act['rule']}]** {act['ad_name']} ➔ **{act['action']}**\n\n*Reason:* {act['reason']}")
-                else:
-                    st.info("✅ All active ads are operating within healthy metrics. No bleeders detected.")
+    # Check for Meta API Token / Session Error
+    if meta_manager.last_error:
+        st.warning(f"⚠️ **Meta Marketing API Notice:** {meta_manager.last_error}")
+        with st.expander("🔑 Quick Reconnect: Paste Fresh Meta Access Token", expanded=True):
+            st.caption("If your temporary token expired, generate a new one from [Meta Graph API Explorer](https://developers.facebook.com/tools/explorer/) and paste it below:")
+            new_tok = st.text_input("Fresh Meta Access Token", value=st.session_state.meta_access_token or "", type="password")
+            if st.button("🔄 Update Token & Reconnect", type="primary"):
+                st.session_state.meta_access_token = new_tok.strip()
+                st.success("Token updated! Reconnecting...")
                 st.rerun()
 
-    with colB:
-        st.subheader("🛑 Manual Controls")
-        if len(df) > 0 and "id" in df:
-            selected_ad = st.selectbox("Select Ad ID to Control", options=df["id"].tolist())
-            b1, b2 = st.columns(2)
-            if b1.button("🛑 Pause Ad", use_container_width=True):
-                meta_manager.pause_ad(selected_ad)
-                st.warning(f"Ad {selected_ad} set to PAUSED")
-                st.rerun()
-            if b2.button("▶️ Activate Ad", use_container_width=True):
-                meta_manager.activate_ad(selected_ad)
-                st.success(f"Ad {selected_ad} set to ACTIVE")
-                st.rerun()
+    if not ads_data:
+        if not meta_manager.last_error:
+            st.info(f"ℹ️ No ads found in Meta Ad Account `{meta_manager.ad_account_id}` for range `{date_preset}`.")
+    else:
+        df = pd.DataFrame(ads_data)
 
-        st.divider()
-        st.subheader("📑 9:00 PM Executive Report Generator")
-        from tools.report_generator import ExecutiveReportGenerator
-        if st.button("📄 Generate Today's Performance Report", use_container_width=True):
-            rep_gen = ExecutiveReportGenerator(agency_name="WholeUp Agency")
-            rep_text = rep_gen.generate_daily_executive_report(
-                account_name=f"WholeUp Live ({meta_manager.ad_account_id})",
-                total_spend=total_spend,
-                total_leads=total_leads,
-                ads_performance=ads_data,
-                actions_taken=[]
-            )
-            st.text_area("📋 WhatsApp-Ready Executive Summary (Copy & Send):", value=rep_text, height=260)
+        total_spend = df["spend"].sum() if "spend" in df else 0.0
+        total_leads = df["leads"].sum() if "leads" in df else 0
+        avg_cpc = df[df["cpc"] > 0]["cpc"].mean() if "cpc" in df and not df[df["cpc"] > 0].empty else 0.0
+        active_count = len(df[df["status"] == "ACTIVE"]) if "status" in df else 0
+
+        # Top Metric Bar
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Ad Spend (" + date_preset + ")", f"₹{total_spend:,.2f}")
+        m2.metric("Total Conversions / Leads", f"{total_leads}")
+        m3.metric("Avg. CPC", f"₹{avg_cpc:.2f}")
+        m4.metric("Active Ads Monitored", f"{active_count} of {len(df)}")
+
+        st.write(" ")
+
+        # Live Data Table
+        st.subheader("📊 Live Monitored Ads (Real Account Data)")
+        display_cols = ["id", "ad_name", "status", "effective_status", "spend", "leads", "cpc", "ctr", "frequency"]
+        existing_cols = [c for c in display_cols if c in df.columns]
+        st.dataframe(df[existing_cols], use_container_width=True)
+
+        # Action Panel
+        colA, colB = st.columns([2, 1])
+        with colA:
+            st.subheader("⚡ Run Optimizer Rules")
+            dry_run_opt = st.checkbox("Dry Run Mode (Inspect & create recommendations without pausing live ads)", value=False)
+            
+            if st.button("🛡️ Execute Kill & Scale Audit", type="primary", use_container_width=True):
+                with st.spinner("AI Media Buyer evaluating spend rules..."):
+                    results = orchestrator.run_ad_autopilot(dry_run=dry_run_opt)
+                    st.success(f"Audit Complete! {results['actions_count']} automated actions processed.")
+
+                    if results["actions"]:
+                        for act in results["actions"]:
+                            st.info(f"**[{act['rule']}]** {act['ad_name']} ➔ **{act['action']}**\n\n*Reason:* {act['reason']}")
+                    else:
+                        st.info("✅ All active ads are operating within healthy metrics. No bleeders detected.")
+                    st.rerun()
+
+        with colB:
+            st.subheader("🛑 Manual Controls")
+            if len(df) > 0 and "id" in df:
+                selected_ad = st.selectbox("Select Ad to Control", options=df["id"].tolist(), format_func=lambda i: f"{df[df['id']==i]['ad_name'].values[0]} ({i})")
+                b1, b2 = st.columns(2)
+                if b1.button("🛑 Pause Ad", use_container_width=True):
+                    res = meta_manager.pause_ad(selected_ad)
+                    if res.get("success"):
+                        st.warning(f"Ad {selected_ad} set to PAUSED")
+                    else:
+                        st.error(f"Failed to pause: {res.get('error')}")
+                    st.rerun()
+                if b2.button("▶️ Activate Ad", use_container_width=True):
+                    res = meta_manager.activate_ad(selected_ad)
+                    if res.get("success"):
+                        st.success(f"Ad {selected_ad} set to ACTIVE")
+                    else:
+                        st.error(f"Failed to activate: {res.get('error')}")
+                    st.rerun()
+
+            st.divider()
+            st.subheader("📑 9:00 PM Executive Report Generator")
+            from tools.report_generator import ExecutiveReportGenerator
+            if st.button("📄 Generate Today's Performance Report", use_container_width=True):
+                rep_gen = ExecutiveReportGenerator(agency_name="WholeUp Agency")
+                rep_text = rep_gen.generate_daily_executive_report(
+                    account_name=f"WholeUp Live ({meta_manager.ad_account_id})",
+                    total_spend=total_spend,
+                    total_leads=total_leads,
+                    ads_performance=ads_data,
+                    actions_taken=[]
+                )
+                st.text_area("📋 WhatsApp-Ready Executive Summary (Copy & Send):", value=rep_text, height=260)
 
 # =========================================================================
 # TAB: COMPETITOR AD-SPY ENGINE
@@ -393,7 +472,7 @@ elif nav == "🕵️ Competitor Ad-Spy Engine":
 # =========================================================================
 elif nav == "📁 Campaign Vault & History":
     st.markdown('<div class="glass-card-title">📁 Generated Campaign Vault</div>', unsafe_allow_html=True)
-    st.write("Browse, inspect, and export all previously generated multi-agent campaign files.")
+    st.write("Browse, inspect, and export all generated multi-agent campaign files.")
 
     outputs_dir = Path(__file__).resolve().parent / "outputs"
     campaign_files = sorted(list(outputs_dir.glob("campaign_*.md")), reverse=True)
@@ -411,7 +490,7 @@ elif nav == "📁 Campaign Vault & History":
         )
         st.markdown(file_body)
     else:
-        st.info("No saved campaigns found yet. Generate your first campaign in the Campaign Studio!")
+        st.info("ℹ️ No saved campaigns found yet. Generate your first campaign in the '🎯 5-Agent Campaign Studio'!")
 
 # =========================================================================
 # TAB 4: GUARDRAILS & API SETTINGS
@@ -430,9 +509,22 @@ elif nav == "⚙️ Guardrails & API Settings":
 
     with g2:
         st.subheader("🔑 Active Credentials")
-        st.text_input("Meta Marketing API Token", value=settings.META_ACCESS_TOKEN[:15] + "..." if settings.META_ACCESS_TOKEN else "", disabled=True)
-        st.text_input("Connected Meta Ad Account", value=settings.META_AD_ACCOUNT_ID, disabled=True)
-        st.text_input("Gemini API Key", value=settings.GEMINI_API_KEY[:10] + "..." if settings.GEMINI_API_KEY else "", disabled=True)
-        st.text_input("Active LLM Model", value="gemini-2.5-flash", disabled=True)
+        updated_token = st.text_input("Meta Marketing API Token", value=st.session_state.meta_access_token or "", type="password")
+        updated_acc = st.text_input("Connected Meta Ad Account", value=st.session_state.meta_ad_account_id or "act_798915225923265")
+        
+        if st.button("💾 Save Credentials & Reconnect", type="primary"):
+            st.session_state.meta_access_token = updated_token.strip()
+            st.session_state.meta_ad_account_id = updated_acc.strip()
+            st.success("Credentials saved to session! Dashboard updated.")
+            st.rerun()
 
-    st.success("✅ Both Meta Marketing API and Gemini 2.5 Flash are actively synced from `.env`.")
+        st.text_input("Gemini API Key", value=settings.GEMINI_API_KEY[:10] + "..." if settings.GEMINI_API_KEY else "", disabled=True)
+        st.text_input("Active LLM Brain Model", value="gemini-2.5-flash", disabled=True)
+
+    st.divider()
+    st.markdown("""
+    #### 💡 How to generate a 60-Day Meta Access Token:
+    1. Go to [Meta Graph API Explorer](https://developers.facebook.com/tools/explorer/).
+    2. Select your App and click **Generate Access Token** with permissions: `ads_management`, `ads_read`.
+    3. Click the **(i)** Info icon next to the token, click **Open in Access Token Tool**, then click **Extend Access Token** to get a 60-day token!
+    """)

@@ -1,104 +1,69 @@
 """
-Meta Marketing API Tool: Live & High-Fidelity Simulation Engine
-Handles live status toggling (PAUSED/ACTIVE), budget scaling, and real-time metric extraction.
+Meta Marketing API Tool: Real-Time Live Ad Account Engine
+Direct Meta Graph API integration for status toggling (PAUSED/ACTIVE), budget scaling,
+and live metric extraction. Zero simulated/fake data.
 """
 
 import time
 import logging
+import requests
 from typing import Dict, List, Any, Optional
 
 from config import settings
 
 logger = logging.getLogger("MetaAdsAPI")
 
-# Realistic Mock Data for Immediate Testing / Simulation
-DEFAULT_MOCK_ADS = [
-    {
-        "id": "ad_101_vesu_realty",
-        "adset_id": "adset_vesu_3bhk",
-        "campaign_name": "Surat Luxury Real Estate - Vesu",
-        "ad_name": "Ad #1 - Video Hook (EMI vs Rent)",
-        "status": "ACTIVE",
-        "spend": 1850.0,
-        "leads": 22,
-        "clicks": 340,
-        "cpc": 5.44,
-        "ctr": 2.85,
-        "frequency": 1.45,
-        "cpl": 84.09,
-        "roas": 4.2
-    },
-    {
-        "id": "ad_102_bleeder_ad",
-        "adset_id": "adset_vesu_3bhk",
-        "campaign_name": "Surat Luxury Real Estate - Vesu",
-        "ad_name": "Ad #2 - Static Poster (Cluttered Text)",
-        "status": "ACTIVE",
-        "spend": 820.0,
-        "leads": 0,
-        "clicks": 45,
-        "cpc": 18.22,
-        "ctr": 0.65,
-        "frequency": 1.20,
-        "cpl": 0.0,  # 0 leads, spent 820 -> Bleeder!
-        "roas": 0.0
-    },
-    {
-        "id": "ad_103_fatigued_winner",
-        "adset_id": "adset_pal_villas",
-        "campaign_name": "Pal Bhatha Commercial Showrooms",
-        "ad_name": "Ad #3 - Founder Story Hook",
-        "status": "ACTIVE",
-        "spend": 4500.0,
-        "leads": 35,
-        "clicks": 620,
-        "cpc": 7.25,
-        "ctr": 1.15,
-        "frequency": 3.85,  # High frequency -> Creative Fatigue!
-        "cpl": 128.57,
-        "roas": 2.1
-    }
-]
-
-# Shared In-memory storage for mock simulation
-_SHARED_MOCK_ADS = [dict(a) for a in DEFAULT_MOCK_ADS]
-
 class MetaAdsManager:
     def __init__(self, access_token: Optional[str] = None, ad_account_id: Optional[str] = None):
-        self.access_token = access_token or settings.META_ACCESS_TOKEN
-        self.ad_account_id = ad_account_id or settings.META_AD_ACCOUNT_ID
-        self.is_live = bool(self.access_token and self.ad_account_id and not self.access_token.startswith("your_"))
-        
-        self.mock_ads = _SHARED_MOCK_ADS
-
-        if self.is_live:
-            try:
-                from facebook_business.api import FacebookAdsApi
-                FacebookAdsApi.init(access_token=self.access_token)
-                logger.info(f"Connected to LIVE Meta Marketing API (Ad Account: {self.ad_account_id})")
-            except Exception as e:
-                logger.error(f"Failed to initialize FacebookAdsApi: {e}. Falling back to simulation.")
-                self.is_live = False
+        self.access_token = (access_token or settings.META_ACCESS_TOKEN or "").strip()
+        raw_account = (ad_account_id or settings.META_AD_ACCOUNT_ID or "").strip()
+        if raw_account and not raw_account.startswith("act_"):
+            self.ad_account_id = f"act_{raw_account}"
         else:
-            logger.info("Operating in SIMULATION / SANDBOX mode (Mock Meta Ad Account)")
-
-    def get_ad_metrics(self) -> List[Dict[str, Any]]:
-        """Fetch real-time metrics for all active ads in account."""
-        if not self.is_live:
-            return self.mock_ads
-
-        # Live Meta API Query
-        try:
-            from facebook_business.adobjects.adaccount import AdAccount
-            account = AdAccount(f"act_{self.ad_account_id.replace('act_', '')}")
-            fields = ['id', 'name', 'status', 'adset_id', 'campaign_id']
-            ads = account.get_ads(fields=fields)
+            self.ad_account_id = raw_account
             
+        self.is_live = bool(self.access_token and self.ad_account_id and not self.access_token.startswith("your_"))
+        self.last_error: Optional[str] = None
+        self.api_version = "v20.0"
+
+    def get_ad_metrics(self, date_preset: str = "last_30d") -> List[Dict[str, Any]]:
+        """
+        Fetch real-time metrics for all ads in the connected Meta Ad Account.
+        Returns empty list [] if no ads or if token is expired/invalid. Zero fake data.
+        """
+        self.last_error = None
+        if not self.is_live:
+            self.last_error = "Meta API not configured. Please set META_ACCESS_TOKEN and META_AD_ACCOUNT_ID in settings."
+            return []
+
+        try:
+            url = f"https://graph.facebook.com/{self.api_version}/{self.ad_account_id}/ads"
+            params = {
+                "fields": "id,name,status,adset_id,campaign_id,effective_status",
+                "limit": 50,
+                "access_token": self.access_token
+            }
+            resp = requests.get(url, params=params, timeout=15)
+            data = resp.json()
+
+            if "error" in data:
+                err_msg = data["error"].get("message", "Unknown Meta API error")
+                self.last_error = f"Meta API: {err_msg}"
+                logger.error(self.last_error)
+                return []
+
+            ads = data.get("data", [])
             results = []
+
             for ad in ads:
-                insights = ad.get_insights(fields=[
-                    'spend', 'impressions', 'clicks', 'cpc', 'ctr', 'frequency', 'actions'
-                ], params={'date_preset': 'today'})
+                ad_id = ad.get("id")
+                # Query insights for this ad
+                insights_url = f"https://graph.facebook.com/{self.api_version}/{ad_id}/insights"
+                ins_params = {
+                    "fields": "spend,impressions,clicks,cpc,ctr,frequency,actions",
+                    "date_preset": date_preset,
+                    "access_token": self.access_token
+                }
                 
                 spend = 0.0
                 clicks = 0
@@ -106,27 +71,35 @@ class MetaAdsManager:
                 ctr = 0.0
                 frequency = 1.0
                 leads = 0
-                
-                if insights:
-                    row = insights[0]
-                    spend = float(row.get('spend', 0.0))
-                    clicks = int(row.get('clicks', 0))
-                    cpc = float(row.get('cpc', 0.0))
-                    ctr = float(row.get('ctr', 0.0))
-                    frequency = float(row.get('frequency', 1.0))
-                    
-                    # Extract leads from actions
-                    for action in row.get('actions', []):
-                        if action.get('action_type') in ['lead', 'contact', 'offsite_conversion.fb_pixel_lead']:
-                            leads += int(action.get('value', 0))
-                
+
+                try:
+                    ins_resp = requests.get(insights_url, params=ins_params, timeout=10)
+                    ins_data = ins_resp.json()
+                    if "data" in ins_data and ins_data["data"]:
+                        row = ins_data["data"][0]
+                        spend = float(row.get("spend", 0.0))
+                        clicks = int(row.get("clicks", 0))
+                        cpc = float(row.get("cpc", 0.0))
+                        ctr = float(row.get("ctr", 0.0))
+                        frequency = float(row.get("frequency", 1.0))
+
+                        for action in row.get("actions", []):
+                            if action.get("action_type") in [
+                                "lead", "contact", "offsite_conversion.fb_pixel_lead", "onsite_conversion.lead_grouped"
+                            ]:
+                                leads += int(action.get("value", 0))
+                except Exception as ie:
+                    logger.warning(f"Could not fetch insights for ad {ad_id}: {ie}")
+
                 cpl = (spend / leads) if leads > 0 else 0.0
 
                 results.append({
-                    "id": ad.get('id'),
-                    "ad_name": ad.get('name'),
-                    "status": ad.get('status'),
-                    "adset_id": ad.get('adset_id'),
+                    "id": ad.get("id"),
+                    "ad_name": ad.get("name"),
+                    "status": ad.get("status"),
+                    "effective_status": ad.get("effective_status"),
+                    "adset_id": ad.get("adset_id"),
+                    "campaign_id": ad.get("campaign_id"),
                     "spend": spend,
                     "leads": leads,
                     "clicks": clicks,
@@ -134,43 +107,48 @@ class MetaAdsManager:
                     "ctr": ctr,
                     "frequency": frequency,
                     "cpl": cpl,
-                    "roas": 0.0  # Calculate if purchase value is available
+                    "roas": 0.0
                 })
+
             return results
+
         except Exception as e:
-            logger.error(f"Live Meta API error fetching ads: {e}. Returning simulation data.")
-            return self.mock_ads
+            self.last_error = f"Connection error: {str(e)}"
+            logger.error(self.last_error)
+            return []
 
     def pause_ad(self, ad_id: str) -> Dict[str, Any]:
-        """Pauses a bleeding or fatigued ad."""
+        """Pauses a bleeding or fatigued ad via live Meta API."""
         if not self.is_live:
-            for ad in self.mock_ads:
-                if ad["id"] == ad_id:
-                    ad["status"] = "PAUSED"
-                    return {"success": True, "mode": "simulation", "ad_id": ad_id, "status": "PAUSED"}
-            return {"success": False, "error": f"Ad {ad_id} not found"}
+            return {"success": False, "error": "Meta API not configured."}
 
+        url = f"https://graph.facebook.com/{self.api_version}/{ad_id}"
+        payload = {"status": "PAUSED", "access_token": self.access_token}
         try:
-            from facebook_business.adobjects.ad import Ad
-            ad = Ad(ad_id)
-            ad.api_update(params={'status': 'PAUSED'})
+            resp = requests.post(url, data=payload, timeout=15)
+            data = resp.json()
+            if "success" in data and data["success"]:
+                return {"success": True, "mode": "live", "ad_id": ad_id, "status": "PAUSED"}
+            elif "error" in data:
+                return {"success": False, "error": data["error"].get("message", "Failed to pause ad")}
             return {"success": True, "mode": "live", "ad_id": ad_id, "status": "PAUSED"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 
     def activate_ad(self, ad_id: str) -> Dict[str, Any]:
-        """Activates a paused ad."""
+        """Activates a paused ad via live Meta API."""
         if not self.is_live:
-            for ad in self.mock_ads:
-                if ad["id"] == ad_id:
-                    ad["status"] = "ACTIVE"
-                    return {"success": True, "mode": "simulation", "ad_id": ad_id, "status": "ACTIVE"}
-            return {"success": False, "error": f"Ad {ad_id} not found"}
+            return {"success": False, "error": "Meta API not configured."}
 
+        url = f"https://graph.facebook.com/{self.api_version}/{ad_id}"
+        payload = {"status": "ACTIVE", "access_token": self.access_token}
         try:
-            from facebook_business.adobjects.ad import Ad
-            ad = Ad(ad_id)
-            ad.api_update(params={'status': 'ACTIVE'})
+            resp = requests.post(url, data=payload, timeout=15)
+            data = resp.json()
+            if "success" in data and data["success"]:
+                return {"success": True, "mode": "live", "ad_id": ad_id, "status": "ACTIVE"}
+            elif "error" in data:
+                return {"success": False, "error": data["error"].get("message", "Failed to activate ad")}
             return {"success": True, "mode": "live", "ad_id": ad_id, "status": "ACTIVE"}
         except Exception as e:
             return {"success": False, "error": str(e)}
@@ -178,30 +156,32 @@ class MetaAdsManager:
     def scale_budget(self, adset_id: str, percentage: float = 20.0) -> Dict[str, Any]:
         """Scales daily budget of winning adset incrementally (e.g. +20%)."""
         if not self.is_live:
-            return {
-                "success": True,
-                "mode": "simulation",
-                "adset_id": adset_id,
-                "action": f"Budget increased by {percentage}%"
-            }
+            return {"success": False, "error": "Meta API not configured."}
 
         try:
-            from facebook_business.adobjects.adset import AdSet
-            adset = AdSet(adset_id)
-            current_info = adset.api_get(fields=['daily_budget'])
-            current_budget = float(current_info.get('daily_budget', 0))
-            
-            # Note: Meta uses cents/paise for currency (e.g. 50000 = ₹500)
+            get_url = f"https://graph.facebook.com/{self.api_version}/{adset_id}"
+            params = {"fields": "daily_budget,name", "access_token": self.access_token}
+            r = requests.get(get_url, params=params, timeout=15).json()
+            if "error" in r:
+                return {"success": False, "error": r["error"].get("message")}
+
+            current_budget = float(r.get("daily_budget", 0))
+            if current_budget <= 0:
+                return {"success": False, "error": "AdSet does not use daily_budget or budget is 0"}
+
             new_budget = current_budget * (1 + (percentage / 100.0))
-            
-            # Guardrail check against MAX_DAILY_BUDGET_CAP
             if (new_budget / 100.0) > settings.MAX_DAILY_BUDGET_CAP:
                 return {
                     "success": False,
-                    "error": f"Blocked: New budget ₹{new_budget/100:.2f} exceeds hard cap of ₹{settings.MAX_DAILY_BUDGET_CAP}"
+                    "error": f"Blocked by guardrail: New budget ₹{new_budget/100:.2f} exceeds cap ₹{settings.MAX_DAILY_BUDGET_CAP}"
                 }
 
-            adset.api_update(params={'daily_budget': int(new_budget)})
+            post_url = f"https://graph.facebook.com/{self.api_version}/{adset_id}"
+            update_payload = {"daily_budget": int(new_budget), "access_token": self.access_token}
+            up_resp = requests.post(post_url, data=update_payload, timeout=15).json()
+            if "error" in up_resp:
+                return {"success": False, "error": up_resp["error"].get("message")}
+
             return {
                 "success": True,
                 "mode": "live",

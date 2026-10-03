@@ -149,5 +149,5 @@ class MediaBuyerBot:
             "total_ads_scanned": len(ads),
             "actions_count": len(actions_taken),
             "actions": actions_taken,
-            "mode": "Live Meta API" if self.meta_ads.is_live else "High-Fidelity Sandbox / Simulation"
+            "mode": "Live Meta API" if self.meta_ads.is_live else "Meta Account Not Connected"
         }

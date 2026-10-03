@@ -6,14 +6,30 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+# Try to load secrets from Streamlit Cloud if running on Streamlit
+try:
+    import streamlit as st
+    if hasattr(st, "secrets"):
+        for key in [
+            "META_ACCESS_TOKEN", "META_AD_ACCOUNT_ID", "META_APP_ID", "META_APP_SECRET",
+            "GEMINI_API_KEY", "GOOGLE_API_KEY", "OPENAI_API_KEY",
+            "DEFAULT_PROVIDER", "GEMINI_MODEL", "OPENAI_MODEL",
+            "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "WHATSAPP_WEBHOOK_URL",
+            "TARGET_CPA", "MAX_CPC", "BLEEDER_SPEND_MULTIPLIER", "FATIGUE_FREQUENCY",
+            "WINNER_ROAS", "MAX_DAILY_BUDGET_CAP"
+        ]:
+            if key in st.secrets and not os.environ.get(key):
+                os.environ[key] = str(st.secrets[key])
+except Exception:
+    pass
+
 # LLM Providers & Keys
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # Default Model Selection
-# Recommended: gemini-2.0-flash or gemini-1.5-flash for speed & high context
 DEFAULT_PROVIDER = os.getenv("DEFAULT_PROVIDER", "gemini")  # 'gemini' or 'openai'
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
 
 # Meta Marketing API Credentials
