@@ -26,14 +26,14 @@ class MetaAdsManager:
         self.last_error: Optional[str] = None
         self.api_version = "v20.0"
 
-    def get_ad_metrics(self, date_preset: str = "last_30d") -> List[Dict[str, Any]]:
+    def get_ad_metrics(self, date_preset: str = "maximum") -> List[Dict[str, Any]]:
         """
         Fetch real-time metrics for all ads in the connected Meta Ad Account.
         Returns empty list [] if no ads or if token is expired/invalid. Zero fake data.
         """
         self.last_error = None
         if not self.is_live:
-            self.last_error = "Meta API not configured. Please set META_ACCESS_TOKEN and META_AD_ACCOUNT_ID in settings."
+            self.last_error = "Meta API not configured. Please set META_ACCESS_TOKEN and META_AD_ACCOUNT_ID."
             return []
 
         try:
@@ -57,41 +57,81 @@ class MetaAdsManager:
 
             for ad in ads:
                 ad_id = ad.get("id")
-                # Query insights for this ad
                 insights_url = f"https://graph.facebook.com/{self.api_version}/{ad_id}/insights"
                 ins_params = {
-                    "fields": "spend,impressions,clicks,cpc,ctr,frequency,actions",
+                    "fields": "spend,impressions,reach,clicks,cpc,cpm,ctr,frequency,actions,cost_per_action_type",
                     "date_preset": date_preset,
                     "access_token": self.access_token
                 }
                 
                 spend = 0.0
+                impressions = 0
+                reach = 0
                 clicks = 0
                 cpc = 0.0
+                cpm = 0.0
                 ctr = 0.0
                 frequency = 1.0
                 leads = 0
+                link_clicks = 0
+                video_views = 0
+                messages = 0
 
                 try:
                     ins_resp = requests.get(insights_url, params=ins_params, timeout=10)
                     ins_data = ins_resp.json()
                     if "data" in ins_data and ins_data["data"]:
                         row = ins_data["data"][0]
-                        spend = float(row.get("spend", 0.0))
+                        spend = round(float(row.get("spend", 0.0)), 2)
+                        impressions = int(row.get("impressions", 0))
+                        reach = int(row.get("reach", 0))
                         clicks = int(row.get("clicks", 0))
-                        cpc = float(row.get("cpc", 0.0))
-                        ctr = float(row.get("ctr", 0.0))
-                        frequency = float(row.get("frequency", 1.0))
+                        cpc = round(float(row.get("cpc", 0.0)), 2)
+                        cpm = round(float(row.get("cpm", 0.0)), 2)
+                        ctr = round(float(row.get("ctr", 0.0)), 2)
+                        frequency = round(float(row.get("frequency", 1.0)), 2)
 
                         for action in row.get("actions", []):
-                            if action.get("action_type") in [
-                                "lead", "contact", "offsite_conversion.fb_pixel_lead", "onsite_conversion.lead_grouped"
-                            ]:
-                                leads += int(action.get("value", 0))
+                            atype = action.get("action_type", "")
+                            aval = int(action.get("value", 0))
+                            if atype in ["lead", "contact", "offsite_conversion.fb_pixel_lead", "onsite_conversion.lead_grouped"]:
+                                leads += aval
+                            elif atype == "link_click":
+                                link_clicks += aval
+                            elif atype == "video_view":
+                                video_views += aval
+                            elif "messaging" in atype:
+                                messages += aval
                 except Exception as ie:
                     logger.warning(f"Could not fetch insights for ad {ad_id}: {ie}")
 
-                cpl = (spend / leads) if leads > 0 else 0.0
+                cpl = round((spend / leads), 2) if leads > 0 else 0.0
+
+                # Diagnostic Status & Recommendation
+                if spend == 0.0:
+                    diagnosis = "⚪ Unspent / Fresh"
+                    recommendation = "Ad is active or freshly launched. Awaiting impressions delivery."
+                    badge_color = "gray"
+                elif cpc > (settings.MAX_CPC * 1.3):
+                    diagnosis = "🛑 High CPC Spike (Bleeder Risk)"
+                    recommendation = f"CPC of ₹{cpc:.2f} is higher than ₹{settings.MAX_CPC:.2f} threshold. Consider pausing or testing new hook."
+                    badge_color = "red"
+                elif ctr >= 1.0 and cpc <= settings.MAX_CPC:
+                    diagnosis = "🚀 High Performer / Winner"
+                    recommendation = f"Healthy CTR ({ctr}%) and low CPC (₹{cpc:.2f}). Safe to scale budget."
+                    badge_color = "green"
+                elif ctr < 0.2 and impressions > 1000:
+                    diagnosis = "⚠️ Low Hook CTR"
+                    recommendation = f"Scroll-stop hook is weak (CTR {ctr}%). Test high-contrast visual or faster hook in first 3 seconds."
+                    badge_color = "yellow"
+                elif frequency > settings.FATIGUE_FREQUENCY:
+                    diagnosis = "🔄 Creative Fatigue"
+                    recommendation = f"Frequency {frequency:.2f} indicates audience has seen this ad multiple times. Rotate fresh creative."
+                    badge_color = "orange"
+                else:
+                    diagnosis = "🟢 Healthy Running"
+                    recommendation = "Metrics are within acceptable media buyer guardrails."
+                    badge_color = "blue"
 
                 results.append({
                     "id": ad.get("id"),
@@ -101,13 +141,22 @@ class MetaAdsManager:
                     "adset_id": ad.get("adset_id"),
                     "campaign_id": ad.get("campaign_id"),
                     "spend": spend,
-                    "leads": leads,
+                    "impressions": impressions,
+                    "reach": reach,
                     "clicks": clicks,
+                    "link_clicks": link_clicks,
+                    "video_views": video_views,
+                    "messages": messages,
+                    "leads": leads,
                     "cpc": cpc,
+                    "cpm": cpm,
                     "ctr": ctr,
                     "frequency": frequency,
                     "cpl": cpl,
-                    "roas": 0.0
+                    "roas": 0.0,
+                    "diagnosis": diagnosis,
+                    "recommendation": recommendation,
+                    "badge_color": badge_color
                 })
 
             return results

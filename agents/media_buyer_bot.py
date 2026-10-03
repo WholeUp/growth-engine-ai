@@ -13,19 +13,19 @@ from config import settings
 logger = logging.getLogger("MediaBuyerBot")
 
 class MediaBuyerBot:
-    def __init__(self, target_cpa: float = None, max_cpc: float = None):
-        self.meta_ads = MetaAdsManager()
+    def __init__(self, target_cpa: float = None, max_cpc: float = None, meta_manager: Any = None):
+        self.meta_ads = meta_manager or MetaAdsManager()
         self.notifier = NotificationHub()
         self.target_cpa = target_cpa or settings.TARGET_CPA
         self.max_cpc = max_cpc or settings.MAX_CPC
         self.bleeder_threshold = self.target_cpa * settings.BLEEDER_SPEND_MULTIPLIER
 
-    def evaluate_and_optimize(self, dry_run: bool = False) -> Dict[str, Any]:
+    def evaluate_and_optimize(self, dry_run: bool = False, date_preset: str = "maximum") -> Dict[str, Any]:
         """
         Scans all ads in the account, evaluates rules, and takes automated action.
         If dry_run=True, it detects issues and creates recommendations without executing changes.
         """
-        ads = self.meta_ads.get_ad_metrics()
+        ads = self.meta_ads.get_ad_metrics(date_preset=date_preset)
         actions_taken = []
         
         logger.info(f"Scanning {len(ads)} ads against Senior Media Buyer rules...")
@@ -75,8 +75,9 @@ class MediaBuyerBot:
             # ---------------------------------------------------------
             # RULE 2: HIGH CPC CUTOFF (Spiking click cost)
             # ---------------------------------------------------------
-            if cpc > (self.max_cpc * 1.5) and spend >= self.target_cpa:
-                reason = f"High CPC Spike: CPC at ₹{cpc:.2f} exceeds max threshold ₹{self.max_cpc:.2f}."
+            cpc_limit = self.max_cpc * 1.3
+            if cpc > cpc_limit and spend >= 30.0:
+                reason = f"High CPC Spike: CPC at ₹{cpc:.2f} exceeds threshold ₹{cpc_limit:.2f}."
                 if not dry_run:
                     self.meta_ads.pause_ad(ad_id)
                     status_applied = "PAUSED"

@@ -125,8 +125,9 @@ class AgencyOrchestrator:
         bundle["file_path"] = str(output_file)
         return bundle
 
-    def run_ad_autopilot(self, dry_run: bool = False) -> Dict[str, Any]:
+    def run_ad_autopilot(self, dry_run: bool = False, meta_manager: Any = None, date_preset: str = "maximum") -> Dict[str, Any]:
         """Runs the 24/7 Autonomous Ad Optimizer to Kill Bleeders and Scale Winners."""
         console.rule("[bold red]🤖 EXECUTING AUTONOMOUS AI MEDIA BUYER & AD OPTIMIZER[/bold red]")
-        result = self.media_buyer.evaluate_and_optimize(dry_run=dry_run)
+        bot = MediaBuyerBot(meta_manager=meta_manager) if meta_manager else self.media_buyer
+        result = bot.evaluate_and_optimize(dry_run=dry_run, date_preset=date_preset)
         return result
