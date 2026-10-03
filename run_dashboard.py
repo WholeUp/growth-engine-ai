@@ -24,10 +24,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Initialize Session State for API credentials
-if "meta_access_token" not in st.session_state:
+# Initialize or upgrade Session State for API credentials
+if "meta_access_token" not in st.session_state or str(st.session_state.meta_access_token).startswith("EAApTmRK5TbkBSmQ2"):
     st.session_state.meta_access_token = settings.META_ACCESS_TOKEN
-if "meta_ad_account_id" not in st.session_state:
+if "meta_ad_account_id" not in st.session_state or not st.session_state.meta_ad_account_id:
     st.session_state.meta_ad_account_id = settings.META_AD_ACCOUNT_ID
 
 # Custom High-End SaaS & Agency Styling
