@@ -131,3 +131,33 @@ class AgencyOrchestrator:
         bot = MediaBuyerBot(meta_manager=meta_manager) if meta_manager else self.media_buyer
         result = bot.evaluate_and_optimize(dry_run=dry_run, date_preset=date_preset)
         return result
+
+    def generate_meta_ad_package(self, niche: str, location: str, offer: str) -> Dict[str, str]:
+        """Directly crafts 5x viral Reel hooks, 3x direct-response Meta ads, and visual production specs."""
+        context = f"Target Market: {niche} in {location}. Core Offer: {offer}"
+        copy = self.copywriter.write_campaign_copy(niche, location, offer, research_dossier=context)
+        visuals = self.creative_director.create_visual_specs(niche, location, copy)
+        return {"copy": copy, "visuals": visuals}
+
+    def check_meta_ad_policy(self, ad_text: str) -> Dict[str, Any]:
+        """Audits ad copy for Meta advertising compliance, ban risks, and flag words."""
+        prompt = f"""
+Audit the following ad text strictly against Meta Advertising Standards:
+1. Personal attributes (e.g., 'Are you struggling with money?', 'Are you fat?')
+2. Unrealistic guarantees or false promises (e.g., 'Guaranteed 10X in 3 days')
+3. Sensationalism, clickbait, or prohibited keywords
+4. Image/Video text compliance
+
+Ad Text to Audit:
+\"\"\"
+{ad_text}
+\"\"\"
+
+Provide:
+- **Compliance Status**: 🟢 SAFE / 🟡 CAUTION / 🔴 HIGH BAN RISK
+- **Specific Violations** (if any)
+- **Safe & Compliant Rewrite** (keeping high conversion intent without getting banned)
+"""
+        review = self.agency_director.call_llm(prompt)
+        return {"review": review}
+

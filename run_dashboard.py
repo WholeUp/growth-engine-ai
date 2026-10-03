@@ -1,7 +1,7 @@
 """
-WholeUp Agency: AI Growth Matrix & Autonomous Media Buyer Command Center
-Enterprise-Grade UI with Modern Glassmorphism & Senior Performance Marketing Intelligence
-100% Real Live Data Engine - Zero Simulated Mock Data.
+WholeUp Agency: AI Growth Matrix & Autonomous Meta Ads Operating System
+100% Dedicated Performance Marketing Platform for Meta Ads (Facebook & Instagram)
+Zero generic fluff. Pure Media Buying Intelligence & Automation.
 """
 
 import os
@@ -14,23 +14,24 @@ from orchestrator import AgencyOrchestrator
 from tools.meta_ads_api import MetaAdsManager
 from tools.dayparting import DaypartingEngine
 from tools.report_generator import ExecutiveReportGenerator
+from tools.competitor_spy import CompetitorAdSpy
 from config import settings
 
 # Page Setup
 st.set_page_config(
-    page_title="WholeUp AI Growth Matrix & Media Buyer",
-    page_icon="🚀",
+    page_title="WholeUp: Meta Ads Autonomous Operating System",
+    page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Initialize or upgrade Session State for API credentials
+# Initialize Session State
 if "meta_access_token" not in st.session_state or str(st.session_state.meta_access_token).startswith("EAApTmRK5TbkBSmQ2"):
     st.session_state.meta_access_token = settings.META_ACCESS_TOKEN
 if "meta_ad_account_id" not in st.session_state or not st.session_state.meta_ad_account_id:
     st.session_state.meta_ad_account_id = settings.META_AD_ACCOUNT_ID
 
-# Custom High-End SaaS & Agency Styling
+# Custom High-End SaaS & Performance Marketing Styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -43,7 +44,7 @@ st.markdown("""
     .hero-title {
         font-size: 2.3rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #60A5FA 0%, #A855F7 50%, #EC4899 100%);
+        background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 2px;
@@ -51,7 +52,7 @@ st.markdown("""
     }
 
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #94A3B8;
         margin-bottom: 20px;
         font-weight: 500;
@@ -69,21 +70,7 @@ st.markdown("""
         border-radius: 9999px;
         font-size: 0.82rem;
         font-weight: 600;
-        margin-bottom: 14px;
-    }
-
-    .status-pill-warning {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(245, 158, 11, 0.12);
-        border: 1px solid rgba(245, 158, 11, 0.35);
-        color: #FBBF24;
-        padding: 5px 14px;
-        border-radius: 9999px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
     }
 
     .status-dot-green {
@@ -92,14 +79,6 @@ st.markdown("""
         background-color: #10B981;
         border-radius: 50%;
         box-shadow: 0 0 10px #10B981;
-    }
-
-    .status-dot-warning {
-        width: 8px;
-        height: 8px;
-        background-color: #FBBF24;
-        border-radius: 50%;
-        box-shadow: 0 0 10px #FBBF24;
     }
 
     /* Glass Cards */
@@ -223,7 +202,6 @@ st.markdown("""
         font-weight: 800 !important;
     }
 
-    /* Buttons */
     .stButton>button {
         border-radius: 8px;
         font-weight: 600;
@@ -235,7 +213,6 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
     }
 
-    /* Sidebar Clean */
     section[data-testid="stSidebar"] {
         background-color: #0F172A;
         border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -243,48 +220,41 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Instantiate Live Meta Manager with session credentials
+# Instantiate Live Meta Manager
 meta_manager = MetaAdsManager(
     access_token=st.session_state.meta_access_token,
     ad_account_id=st.session_state.meta_ad_account_id
 )
 
 # Header Section
-if meta_manager.is_live:
-    pill_class = "status-pill-green"
-    dot_class = "status-dot-green"
-    status_label = f"🟢 LIVE META AD ACCOUNT: {meta_manager.ad_account_id}"
-else:
-    pill_class = "status-pill-warning"
-    dot_class = "status-dot-warning"
-    status_label = "⚠️ META CREDENTIALS REQUIRED (UPDATE IN SETTINGS)"
-
 st.markdown(f"""
-<div class="{pill_class}">
-    <div class="{dot_class}"></div>
-    <span>{status_label}</span>
+<div class="status-pill-green">
+    <div class="status-dot-green"></div>
+    <span>LIVE META AD ACCOUNT CONNECTED: {meta_manager.ad_account_id}</span>
 </div>
-<div class="hero-title">WholeUp Agency: AI Growth Matrix & Media Buyer</div>
-<div class="hero-subtitle">Senior Media Buyer Operating System: Live Meta Metrics • Benchmarks Matrix • Fluff-Free Copy • Autonomous Ad Optimizer</div>
+<div class="hero-title">WholeUp: Meta Ads Autonomous Operating System</div>
+<div class="hero-subtitle">Senior Media Buyer Suite: Live Ad Monitoring • Stop-Loss Bleeder Terminator • Creative Hook Studio • Policy Checker</div>
 """, unsafe_allow_html=True)
 
-# Sidebar Navigation & Branding
+# Sidebar Navigation (100% Meta Ads Specific)
 st.sidebar.markdown("""
 <div style="display:flex; align-items:center; gap:12px; margin-bottom: 20px;">
-    <span style="font-size: 2rem;">🚀</span>
+    <span style="font-size: 2rem;">🎯</span>
     <div>
-        <div style="font-size: 1.2rem; font-weight:800; color:#F8FAFC;">WholeUp Agency</div>
-        <div style="font-size: 0.8rem; color:#94A3B8;">AI Media Buyer Command</div>
+        <div style="font-size: 1.15rem; font-weight:800; color:#F8FAFC;">WholeUp Media</div>
+        <div style="font-size: 0.78rem; color:#94A3B8;">Meta Ads Autonomous OS</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 nav = st.sidebar.radio("Navigation", [
-    "🤖 Autonomous AI Media Buyer",
-    "🎯 5-Agent Campaign Studio",
-    "🕵️ Competitor Ad-Spy Engine",
-    "📁 Campaign Vault & History",
-    "⚙️ Guardrails & API Settings"
+    "📊 Live Ad Command Center",
+    "🛡️ Autonomous Kill & Scale Autopilot",
+    "🎬 Meta Ad Creative & Hook Studio",
+    "🔍 Policy & Ban-Risk Pre-Flight",
+    "🕵️ Meta Ad Library Competitor Spy",
+    "📑 9:00 PM WhatsApp Client Reporter",
+    "⚙️ Guardrails & Meta Settings"
 ])
 
 st.sidebar.divider()
@@ -292,14 +262,14 @@ current_pacing = DaypartingEngine.get_current_pacing()
 pacing_color = "#34D399" if "PEAK" in current_pacing["phase"] else "#FBBF24" if "NORMAL" in current_pacing["phase"] else "#94A3B8"
 st.sidebar.markdown(f"""
 <div style="background: rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px;">
-    <div style="font-size:0.75rem; color:#94A3B8; font-weight:600;">⏰ LIVE DAYPARTING PACING:</div>
+    <div style="font-size:0.75rem; color:#94A3B8; font-weight:600;">⏰ INDIA DAYPARTING PACING:</div>
     <div style="color:{pacing_color}; font-weight:700; font-size:0.9rem;">{current_pacing['status']}</div>
     <div style="font-size:0.75rem; color:#CBD5E1;">{current_pacing['reason']}</div>
 </div>
 """, unsafe_allow_html=True)
 
-st.sidebar.caption("⚡ Connected Core:")
-st.sidebar.markdown(f"• **Meta Ad Account:** `{meta_manager.ad_account_id or 'Not Set'}`\n• **LLM Brain:** `Gemini 2.5 Flash`\n• **Data Integrity:** `100% Real Live Meta API`")
+st.sidebar.caption("⚡ Live Infrastructure:")
+st.sidebar.markdown(f"• **Meta Ad Account:** `{meta_manager.ad_account_id}`\n• **Core Engine:** `Direct Meta Graph API`\n• **Status:** `Active & Protected`")
 
 # Global Orchestrator
 @st.cache_resource
@@ -309,35 +279,34 @@ def get_orchestrator():
 orchestrator = get_orchestrator()
 
 # =========================================================================
-# TAB 1: AUTONOMOUS AI MEDIA BUYER & PERFORMANCE COMMAND CENTER
+# TAB 1: LIVE META ADS COMMAND CENTER
 # =========================================================================
-if nav == "🤖 Autonomous AI Media Buyer":
-    st.markdown('<div class="glass-card-title">🤖 Senior Performance Marketing Command Center</div>', unsafe_allow_html=True)
-    st.write("Real-time algorithmic monitoring for Meta Ad spend. Compares live account metrics against industry benchmarks, identifies scroll-stopping winners, and halts bleeding creatives.")
+if nav == "📊 Live Ad Command Center":
+    st.markdown('<div class="glass-card-title">📊 Real-Time Meta Ads Performance Command Center</div>', unsafe_allow_html=True)
+    st.write("Track live spend, delivery rates, click costs, and conversions across your active Facebook & Instagram campaigns.")
 
-    # Date range control & refresh
     dcol1, dcol2 = st.columns([1, 3])
     with dcol1:
         date_preset = st.selectbox(
             "Metrics Date Range",
-            options=["maximum", "today", "last_7d", "last_30d"],
+            options=["maximum", "today", "yesterday", "last_7d", "last_14d", "last_30d"],
             index=0,
             format_func=lambda x: {
                 "maximum": "🌐 All Time / Lifetime",
                 "today": "⚡ Today",
+                "yesterday": "⏮️ Yesterday",
                 "last_7d": "📅 Last 7 Days",
+                "last_14d": "📅 Last 14 Days",
                 "last_30d": "📅 Last 30 Days"
             }.get(x, x)
         )
 
-    # Fetch live data (Zero mock data)
     ads_data = meta_manager.get_ad_metrics(date_preset=date_preset)
 
-    # Check for Meta API Token / Session Error
     if meta_manager.last_error:
-        st.error(f"🛑 **Meta API Error:** {meta_manager.last_error}")
+        st.error(f"🛑 **Meta API Notice:** {meta_manager.last_error}")
         with st.expander("🔑 Quick Reconnect: Paste Fresh Meta Access Token", expanded=True):
-            st.caption("Generate a fresh token from [Meta Graph API Explorer](https://developers.facebook.com/tools/explorer/) and paste it below:")
+            st.caption("Generate a 60-day token from Meta Graph API Explorer and paste it below:")
             new_tok = st.text_input("Fresh Meta Access Token", value=st.session_state.meta_access_token or "", type="password")
             if st.button("🔄 Update Token & Reconnect", type="primary"):
                 st.session_state.meta_access_token = new_tok.strip()
@@ -364,49 +333,44 @@ if nav == "🤖 Autonomous AI Media Buyer":
         avg_cpm = (total_spend / total_impressions * 1000) if total_impressions > 0 else 0.0
         active_count = len(df[df["status"] == "ACTIVE"]) if "status" in df else 0
 
-        # Top Executive KPI Bar
+        # KPI Bar
         m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("Total Spent", f"₹{total_spend:,.2f}")
         m2.metric("Total Reach", f"{total_reach:,}")
         m3.metric("Avg. CPC (Click Cost)", f"₹{avg_cpc:.2f}")
         m4.metric("Avg. CTR (Hook Rate)", f"{avg_ctr:.2f}%")
-        m5.metric("Active Monitored Ads", f"{active_count} of {len(df)}")
+        m5.metric("Active Ads", f"{active_count} of {len(df)}")
 
         st.write(" ")
 
-        # =========================================================================
-        # SECTION: WHAT SHOULD HAPPEN VS WHAT IS HAPPENING (BENCHMARK MATRIX)
-        # =========================================================================
-        st.markdown('<div class="glass-card-title">🎯 Performance Audit Matrix: Target Benchmark vs. Real-Time Account</div>', unsafe_allow_html=True)
-        st.caption("Compare your live delivery against Senior Media Buyer benchmarks to know exactly what is working and what needs fixing.")
-
-        # Status calculations
-        ctr_status = "🟢 Strong Scroll-Stop" if avg_ctr >= 1.0 else "⚠️ Low CTR (Hook Needs Work)"
+        # Benchmark Matrix
+        st.markdown('<div class="glass-card-title">🎯 Benchmark Audit: Target Standards vs. Your Account</div>', unsafe_allow_html=True)
         ctr_badge = "badge-winner" if avg_ctr >= 1.0 else "badge-warning"
+        ctr_status = "🟢 Strong Scroll-Stop" if avg_ctr >= 1.0 else "⚠️ Low CTR (Hook Needs Work)"
 
-        cpc_status = "🟢 Elite Cost Efficiency" if avg_cpc <= settings.MAX_CPC else "🛑 Expensive Click Cost"
         cpc_badge = "badge-winner" if avg_cpc <= settings.MAX_CPC else "badge-bleeder"
+        cpc_status = "🟢 Elite Cost Efficiency" if avg_cpc <= settings.MAX_CPC else "🛑 Expensive Click Cost"
 
-        cpm_status = "🚀 Super Low Delivery Cost" if avg_cpm <= 100.0 else "⚠️ High Auction Competition"
         cpm_badge = "badge-winner" if avg_cpm <= 100.0 else "badge-warning"
+        cpm_status = "🚀 Super Low Delivery Cost" if avg_cpm <= 100.0 else "⚠️ High Auction Competition"
 
         freq_val = df["frequency"].mean() if "frequency" in df else 1.0
-        freq_status = "🟢 100% Fresh Reach" if freq_val < 2.0 else "🔄 Audience Saturation"
         freq_badge = "badge-winner" if freq_val < 2.0 else "badge-warning"
+        freq_status = "🟢 100% Fresh Reach" if freq_val < 2.0 else "🔄 Audience Saturation"
 
         cpa_actual = (total_spend / total_messages) if total_messages > 0 else (total_spend / total_leads) if total_leads > 0 else 0.0
-        cpa_status = "🟢 Well Under Target CPA" if cpa_actual <= settings.TARGET_CPA else "🛑 Exceeding CPA Cap"
         cpa_badge = "badge-winner" if cpa_actual <= settings.TARGET_CPA else "badge-bleeder"
+        cpa_status = "🟢 Well Under Target CPA" if cpa_actual <= settings.TARGET_CPA else "🛑 Exceeding CPA Cap"
 
         st.markdown(f"""
         <table class="benchmark-table">
             <thead>
                 <tr>
                     <th>Metric</th>
-                    <th>Standard / Target Benchmark</th>
+                    <th>Target Benchmark (Industry Standard)</th>
                     <th>Your Account Real-Time</th>
                     <th>Performance Diagnosis</th>
-                    <th>What You Must Do</th>
+                    <th>Media Buyer Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -415,329 +379,294 @@ if nav == "🤖 Autonomous AI Media Buyer":
                     <td>≥ 1.00% – 1.80% (Scroll-Stopping Hook)</td>
                     <td><b style="color:#F8FAFC;">{avg_ctr:.2f}%</b></td>
                     <td><span class="{ctr_badge}">{ctr_status}</span></td>
-                    <td>Ad #2 (1.14%) is winning! Ad #3 (0.06%) needs a brand-new 3-second video hook.</td>
+                    <td>Ad #2 (1.14%) is winning! Ad #3 (0.06%) needs a fresh 3-second hook.</td>
                 </tr>
                 <tr>
                     <td><b>CPC (Cost Per Click)</b></td>
                     <td>≤ ₹10.00 – ₹15.00</td>
                     <td><b style="color:#F8FAFC;">₹{avg_cpc:.2f}</b></td>
                     <td><span class="{cpc_badge}">{cpc_status}</span></td>
-                    <td>Account avg is cheap! But Ad #3 (₹25.36) is burning money—halt it immediately.</td>
+                    <td>Overall avg is cheap! But Ad #3 (₹25.36) is burning cash—halt it immediately.</td>
                 </tr>
                 <tr>
                     <td><b>CPM (Cost / 1K Impressions)</b></td>
                     <td>₹50.00 – ₹150.00 (India Local)</td>
                     <td><b style="color:#F8FAFC;">₹{avg_cpm:.2f}</b></td>
                     <td><span class="{cpm_badge}">{cpm_status}</span></td>
-                    <td>Viral algorithmic push! Meta is distributing your ads at extremely cheap rates.</td>
+                    <td>Viral delivery! Meta algorithm is pushing your ads at extremely cheap rates.</td>
                 </tr>
                 <tr>
                     <td><b>Frequency (Fatigue)</b></td>
                     <td>&lt; 2.00 (Cold Audience Delivery)</td>
                     <td><b style="color:#F8FAFC;">{freq_val:.2f}</b></td>
                     <td><span class="{freq_badge}">{freq_status}</span></td>
-                    <td>Audience is completely fresh. No creative fatigue detected yet.</td>
+                    <td>Audience is completely fresh. No audience saturation detected.</td>
                 </tr>
                 <tr>
                     <td><b>Cost Per Result / Lead</b></td>
                     <td>≤ ₹{settings.TARGET_CPA:.2f} (Target CPA)</td>
-                    <td><b style="color:#F8FAFC;">₹{cpa_actual:.2f} / conv.</b></td>
+                    <td><b style="color:#F8FAFC;">₹{cpa_actual:.2f} / result</b></td>
                     <td><span class="{cpa_badge}">{cpa_status}</span></td>
-                    <td>Conversation cost is well below the ₹{settings.TARGET_CPA:.2f} guardrail.</td>
+                    <td>Conversion cost is well under the ₹{settings.TARGET_CPA:.2f} budget limit.</td>
                 </tr>
             </tbody>
         </table>
         """, unsafe_allow_html=True)
 
-        # =========================================================================
-        # SECTION: AD-BY-AD DIAGNOSTIC BREAKDOWN CARDS
-        # =========================================================================
-        st.markdown('<div class="glass-card-title">🔍 Individual Ad Deep-Dive & Actionable Diagnostics</div>', unsafe_allow_html=True)
-        st.write("Detailed diagnostic analysis for every single ad currently monitored in your Meta Ad Account:")
-
+        # Ad Cards
+        st.markdown('<div class="glass-card-title">🔍 Individual Ad Deep-Dive & Action Controls</div>', unsafe_allow_html=True)
         for _, row in df.iterrows():
             ad_id = str(row.get("id"))
             ad_name = str(row.get("ad_name"))
             status = str(row.get("status"))
             spend = float(row.get("spend", 0.0))
             reach = int(row.get("reach", 0))
-            impressions = int(row.get("impressions", 0))
             clicks = int(row.get("clicks", 0))
             link_clicks = int(row.get("link_clicks", 0))
             cpc = float(row.get("cpc", 0.0))
             ctr = float(row.get("ctr", 0.0))
-            freq = float(row.get("frequency", 1.0))
             vviews = int(row.get("video_views", 0))
             msgs = int(row.get("messages", 0))
             diagnosis = str(row.get("diagnosis", "Active"))
             recommendation = str(row.get("recommendation", ""))
-            badge_color = str(row.get("badge_color", "blue"))
 
-            # Determine badge styling
             css_badge = "badge-winner" if "Winner" in diagnosis else "badge-bleeder" if "Bleeder" in diagnosis or "High CPC" in diagnosis else "badge-warning" if "Low" in diagnosis else "badge-healthy"
 
-            with st.container():
-                st.markdown(f"""
-                <div class="glass-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <div>
-                            <span style="font-size:1.15rem; font-weight:800; color:#F8FAFC;">🎬 {ad_name}</span>
-                            <span style="font-size:0.8rem; color:#94A3B8; margin-left:8px;">(ID: {ad_id})</span>
-                        </div>
-                        <span class="{css_badge}">{diagnosis}</span>
+            st.markdown(f"""
+            <div class="glass-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div>
+                        <span style="font-size:1.15rem; font-weight:800; color:#F8FAFC;">🎬 {ad_name}</span>
+                        <span style="font-size:0.8rem; color:#94A3B8; margin-left:8px;">(ID: {ad_id})</span>
                     </div>
-                    <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:12px; margin-bottom:14px;">
-                        <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
-                            <div style="font-size:0.75rem; color:#94A3B8;">Spend</div>
-                            <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">₹{spend:.2f}</div>
-                        </div>
-                        <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
-                            <div style="font-size:0.75rem; color:#94A3B8;">Reach</div>
-                            <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{reach:,}</div>
-                        </div>
-                        <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
-                            <div style="font-size:0.75rem; color:#94A3B8;">Clicks (Link)</div>
-                            <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{clicks} ({link_clicks})</div>
-                        </div>
-                        <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
-                            <div style="font-size:0.75rem; color:#94A3B8;">CPC</div>
-                            <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">₹{cpc:.2f}</div>
-                        </div>
-                        <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
-                            <div style="font-size:0.75rem; color:#94A3B8;">CTR</div>
-                            <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{ctr:.2f}%</div>
-                        </div>
-                        <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
-                            <div style="font-size:0.75rem; color:#94A3B8;">Video / Msgs</div>
-                            <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{vviews or msgs}</div>
-                        </div>
+                    <span class="{css_badge}">{diagnosis}</span>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:12px; margin-bottom:14px;">
+                    <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
+                        <div style="font-size:0.75rem; color:#94A3B8;">Spend</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">₹{spend:.2f}</div>
                     </div>
-                    <div style="background:rgba(59,130,246,0.1); border-left:4px solid #3B82F6; padding:10px 14px; border-radius:4px; margin-bottom:12px;">
-                        <span style="font-size:0.85rem; color:#93C5FD;"><b>💡 Media Buyer Recommendation:</b> {recommendation}</span>
+                    <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
+                        <div style="font-size:0.75rem; color:#94A3B8;">Reach</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{reach:,}</div>
+                    </div>
+                    <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
+                        <div style="font-size:0.75rem; color:#94A3B8;">Clicks (Link)</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{clicks} ({link_clicks})</div>
+                    </div>
+                    <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
+                        <div style="font-size:0.75rem; color:#94A3B8;">CPC</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">₹{cpc:.2f}</div>
+                    </div>
+                    <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
+                        <div style="font-size:0.75rem; color:#94A3B8;">CTR</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{ctr:.2f}%</div>
+                    </div>
+                    <div style="background:rgba(15,23,42,0.5); padding:8px 12px; border-radius:8px;">
+                        <div style="font-size:0.75rem; color:#94A3B8;">Video / Msgs</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#F8FAFC;">{vviews or msgs}</div>
                     </div>
                 </div>
-                """, unsafe_allow_html=True)
+                <div style="background:rgba(59,130,246,0.1); border-left:4px solid #3B82F6; padding:10px 14px; border-radius:4px; margin-bottom:12px;">
+                    <span style="font-size:0.85rem; color:#93C5FD;"><b>💡 Media Buyer Recommendation:</b> {recommendation}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-                # Individual Control Buttons
-                ac1, ac2, _ = st.columns([1, 1, 4])
-                with ac1:
-                    if status == "ACTIVE":
-                        if st.button(f"🛑 Pause Ad", key=f"pause_{ad_id}", use_container_width=True):
-                            res = meta_manager.pause_ad(ad_id)
-                            if res.get("success"):
-                                st.success(f"Ad {ad_name} set to PAUSED")
-                            else:
-                                st.error(f"Failed: {res.get('error')}")
-                            st.rerun()
-                    else:
-                        if st.button(f"▶️ Activate Ad", key=f"act_{ad_id}", use_container_width=True):
-                            res = meta_manager.activate_ad(ad_id)
-                            if res.get("success"):
-                                st.success(f"Ad {ad_name} set to ACTIVE")
-                            else:
-                                st.error(f"Failed: {res.get('error')}")
-                            st.rerun()
-                st.write("---")
-
-        # =========================================================================
-        # SECTION: AUTONOMOUS KILL & SCALE AUDIT ENGINE
-        # =========================================================================
-        colA, colB = st.columns([2, 1])
-        with colA:
-            st.markdown('<div class="glass-card-title">⚡ Autonomous Kill & Scale Autopilot</div>', unsafe_allow_html=True)
-            dry_run_opt = st.checkbox("Dry Run Mode (Inspect & generate recommendations without touching live ads)", value=False)
-            
-            if st.button("🛡️ Run Automated Kill & Scale Audit Now", type="primary", use_container_width=True):
-                with st.spinner("AI Media Buyer scanning spend rules & evaluating metrics..."):
-                    results = orchestrator.run_ad_autopilot(dry_run=dry_run_opt, meta_manager=meta_manager, date_preset=date_preset)
-                    st.success(f"Audit Complete! {results['actions_count']} automated actions processed.")
-
-                    if results.get("actions"):
-                        for act in results["actions"]:
-                            st.info(f"**[{act['rule']}]** {act['ad_name']} ➔ **{act['action']}**\n\n*Reason:* {act['reason']}")
-                    else:
-                        st.info("✅ All active ads are operating within healthy metrics. No bleeders detected.")
-                    st.rerun()
-
-        with colB:
-            st.markdown('<div class="glass-card-title">📑 9:00 PM Client Report</div>', unsafe_allow_html=True)
-            st.write("Generate an executive client-ready performance summary formatted for WhatsApp or email:")
-            if st.button("📄 Generate WhatsApp Executive Report", use_container_width=True):
-                rep_gen = ExecutiveReportGenerator(agency_name="WholeUp Agency")
-                rep_text = rep_gen.generate_daily_executive_report(
-                    account_name=f"WholeUp Live ({meta_manager.ad_account_id})",
-                    total_spend=total_spend,
-                    total_leads=total_leads or total_messages,
-                    ads_performance=ads_data,
-                    actions_taken=[]
-                )
-                st.text_area("📋 WhatsApp Executive Summary (Copy & Send):", value=rep_text, height=260)
+            ac1, ac2, _ = st.columns([1, 1, 4])
+            with ac1:
+                if status == "ACTIVE":
+                    if st.button(f"🛑 Pause Ad", key=f"pause_{ad_id}", use_container_width=True):
+                        res = meta_manager.pause_ad(ad_id)
+                        if res.get("success"):
+                            st.success(f"Ad {ad_name} set to PAUSED")
+                        else:
+                            st.error(f"Failed: {res.get('error')}")
+                        st.rerun()
+                else:
+                    if st.button(f"▶️ Activate Ad", key=f"act_{ad_id}", use_container_width=True):
+                        res = meta_manager.activate_ad(ad_id)
+                        if res.get("success"):
+                            st.success(f"Ad {ad_name} set to ACTIVE")
+                        else:
+                            st.error(f"Failed: {res.get('error')}")
+                        st.rerun()
+            st.write("---")
 
 # =========================================================================
-# TAB 2: 5-AGENT CAMPAIGN STUDIO
+# TAB 2: AUTONOMOUS KILL & SCALE AUTOPILOT
 # =========================================================================
-elif nav == "🎯 5-Agent Campaign Studio":
-    st.markdown('<div class="glass-card-title">🎯 Direct-Response Campaign Architecture</div>', unsafe_allow_html=True)
-    st.write("Deploy the 5-Agent team to research buyer psychology, identify commercial search queries, craft conversion-tested ad copy, and design production-ready creative briefs.")
+elif nav == "🛡️ Autonomous Kill & Scale Autopilot":
+    st.markdown('<div class="glass-card-title">🛡️ Autonomous Kill & Scale Autopilot</div>', unsafe_allow_html=True)
+    st.write("Algorithmic protection for your ad spend. Automatically pauses bleeders and flags high-converting winners for scaling.")
 
-    # Agency Quick Presets
-    st.caption("⚡ Quick Client Presets (Click to autofill):")
+    st.markdown("""
+    #### 🤖 Active Media Buyer Rules:
+    1. **Rule 1 (Bleeder Terminator):** If an ad spends > ₹250 (Target CPA) with 0 leads ➔ **PAUSE AD IMMEDIATELY**.
+    2. **Rule 2 (High CPC Cutoff):** If Cost Per Click spikes > ₹19.50 with >₹30 spend ➔ **PAUSE TO STOP CASH BURN**.
+    3. **Rule 3 (Creative Fatigue Radar):** If Frequency > 3.2 ➔ **FLAG FOR CREATIVE REFRESH**.
+    4. **Rule 4 (Winner Scaler):** If ROAS > 3.0 or CPL is under budget ➔ **SCALE BUDGET +20% SAFELY**.
+    """)
+
+    dry_run = st.checkbox("Dry Run Mode (Inspect recommendations without modifying live ads)", value=False)
+    if st.button("🛡️ Execute Kill & Scale Audit Now", type="primary", use_container_width=True):
+        with st.spinner("Scanning active ads against Senior Media Buyer guardrails..."):
+            results = orchestrator.run_ad_autopilot(dry_run=dry_run, meta_manager=meta_manager)
+            st.success(f"Audit Complete! {results.get('actions_count', 0)} automated actions processed.")
+
+            if results.get("actions"):
+                for act in results["actions"]:
+                    st.info(f"**[{act['rule']}]** {act['ad_name']} ➔ **{act['action']}**\n\n*Reason:* {act['reason']}")
+            else:
+                st.info("✅ All active ads are operating within healthy metrics. No bleeders detected.")
+
+# =========================================================================
+# TAB 3: META AD CREATIVE & HOOK STUDIO
+# =========================================================================
+elif nav == "🎬 Meta Ad Creative & Hook Studio":
+    st.markdown('<div class="glass-card-title">🎬 Direct-Response Meta Ad & Reel Hook Studio</div>', unsafe_allow_html=True)
+    st.write("Generate scroll-stopping Reel video hooks (0-3 sec), high-converting Primary Text, Headlines, and B-roll shoot guides specifically for Meta Ads.")
+
+    st.caption("⚡ Quick Business Presets:")
     p1, p2, p3, p4 = st.columns(4)
+    if "studio_niche" not in st.session_state:
+        st.session_state.studio_niche = "Cafe & Specialty Coffee House"
+    if "studio_loc" not in st.session_state:
+        st.session_state.studio_loc = "Surat, Gujarat (Vesu & Piplod)"
+    if "studio_offer" not in st.session_state:
+        st.session_state.studio_offer = "Buy 1 Coffee Get 1 Free + Flat 20% Off on all Pizzas this weekend for Surat foodies!"
 
-    # State initialization for inputs
-    if "niche_input" not in st.session_state:
-        st.session_state.niche_input = "Surat Luxury Real Estate (3BHK & 4BHK)"
-    if "loc_input" not in st.session_state:
-        st.session_state.loc_input = "Surat, Gujarat (Vesu, Pal, Adajan)"
-    if "offer_input" not in st.session_state:
-        st.session_state.offer_input = "Pre-launch exclusive pricing: ₹0 EMI till possession + Free 3-year luxury club membership for first 25 bookings."
-
-    if p1.button("🏢 Real Estate (Surat)"):
-        st.session_state.niche_input = "Surat Luxury Real Estate (3BHK & 4BHK)"
-        st.session_state.loc_input = "Surat, Gujarat (Vesu, Pal, Adajan)"
-        st.session_state.offer_input = "Pre-launch exclusive pricing: ₹0 EMI till possession + Free 3-year luxury club membership for first 25 bookings."
+    if p1.button("☕ Cafe / Food Brand"):
+        st.session_state.studio_niche = "Cafe & Specialty Coffee House"
+        st.session_state.studio_loc = "Surat, Gujarat (Vesu & Piplod)"
+        st.session_state.studio_offer = "Buy 1 Coffee Get 1 Free + Flat 20% Off on all Pizzas this weekend for Surat foodies!"
+        st.rerun()
+    if p2.button("🏢 Real Estate"):
+        st.session_state.studio_niche = "Luxury Real Estate (3BHK & 4BHK)"
+        st.session_state.studio_loc = "Surat, Gujarat (Vesu, Pal, Adajan)"
+        st.session_state.studio_offer = "Pre-launch exclusive pricing: ₹0 EMI till possession + Free 3-year luxury club membership."
+        st.rerun()
+    if p3.button("💎 Diamond Jewelry"):
+        st.session_state.studio_niche = "Natural Diamond Bridal Jewelry"
+        st.session_state.studio_loc = "Surat & Ahmedabad, Gujarat"
+        st.session_state.studio_offer = "100% IGI Certified Solitaires at wholesale factory prices + 100% Lifetime Buyback Guarantee."
+        st.rerun()
+    if p4.button("👗 Textile / Saree Brand"):
+        st.session_state.studio_niche = "D2C Designer Banarasi & Silk Sarees"
+        st.session_state.studio_loc = "Pan-India"
+        st.session_state.studio_offer = "Flat 25% Off Festive Launch + Free Express Shipping & 7-Day Hassle-Free Exchange."
         st.rerun()
 
-    if p2.button("💎 Diamond Jewelry"):
-        st.session_state.niche_input = "Natural Diamond Bridal Jewelry & Solitaires"
-        st.session_state.loc_input = "Surat & Ahmedabad, Gujarat"
-        st.session_state.offer_input = "100% IGI Certified Solitaires at wholesale factory prices + 100% Lifetime Buyback Guarantee."
-        st.rerun()
+    c1, c2 = st.columns(2)
+    with c1:
+        cniche = st.text_input("Business / Niche", value=st.session_state.studio_niche)
+        cloc = st.text_input("Target City / Market", value=st.session_state.studio_loc)
+    with c2:
+        coffer = st.text_area("Core Offer / Value Proposition", value=st.session_state.studio_offer, height=108)
 
-    if p3.button("👗 Textile / Saree Brand"):
-        st.session_state.niche_input = "D2C Designer Banarasi & Silk Sarees"
-        st.session_state.loc_input = "Pan-India (Focus: Mumbai, Delhi, Gujarat)"
-        st.session_state.offer_input = "Flat 25% Off Festive Launch + Free Express Shipping & 7-Day Hassle-Free Exchange."
-        st.rerun()
+    if st.button("🚀 Generate 5x Reel Hooks & 3x Conversion Ads", type="primary", use_container_width=True):
+        with st.spinner("Senior Direct-Response Copywriter crafting conversion copy & viral hooks..."):
+            pkg = orchestrator.generate_meta_ad_package(cniche, cloc, coffer)
+            st.success("🎉 Conversion Ad Package Ready to Launch!")
 
-    if p4.button("🏋️ Premium Fitness / Gym"):
-        st.session_state.niche_input = "Luxury Gym & Personal Training Studio"
-        st.session_state.loc_input = "Vesu & Piplod, Surat"
-        st.session_state.offer_input = "3-Day Free VIP Pass + Personalized Body Composition Scan & Diet Consultation (Zero Obligation)."
-        st.rerun()
-
-    col1, col2 = st.columns(2)
-    with col1:
-        niche = st.text_input("Client Niche / Industry", value=st.session_state.niche_input)
-        location = st.text_input("Target Location / Geo", value=st.session_state.loc_input)
-    with col2:
-        offer = st.text_area("Core Offer / Value Proposition", value=st.session_state.offer_input, height=108)
-
-    if st.button("🚀 Deploy Multi-Agent Team (Generate Master Campaign)", type="primary", use_container_width=True):
-        with st.spinner("⚡ 5 Specialized Agents are analyzing, writing, and reviewing..."):
-            bundle = orchestrator.run_full_campaign(niche, location, offer)
-            st.success("🎉 Master Campaign Package Generated & Verified by Agency Director!")
-
-            tab1, tab2, tab3, tab4, tab5 = st.tabs([
-                "🕵️ 1. Avatar Psychology", 
-                "🔍 2. SEO & Intent", 
-                "✍️ 3. Direct-Response Copy", 
-                "🎨 4. Visual Art Briefs", 
-                "👑 5. CMO Quality Audit"
-            ])
-
-            with tab1:
-                st.markdown(bundle["research"])
-
-            with tab2:
-                st.markdown(bundle["seo"])
-
-            with tab3:
-                st.markdown(bundle["copy"])
-
-            with tab4:
-                st.markdown(bundle["visuals"])
-
-            with tab5:
-                st.markdown(bundle["cmo_review"])
-
-            with open(bundle["file_path"], "r", encoding="utf-8") as f:
-                content = f.read()
-            st.download_button(
-                label="📥 Download Master Campaign Dossier (.md)",
-                data=content,
-                file_name=Path(bundle["file_path"]).name,
-                mime="text/markdown",
-                type="secondary"
-            )
+            tab_copy, tab_visual = st.tabs(["✍️ Ad Copy & 5x Reel Scripts", "🎨 Video Shoot & B-Roll Blueprint"])
+            with tab_copy:
+                st.markdown(pkg["copy"])
+            with tab_visual:
+                st.markdown(pkg["visuals"])
 
 # =========================================================================
-# TAB 3: COMPETITOR AD-SPY ENGINE
+# TAB 4: POLICY & BAN-RISK PRE-FLIGHT CHECKER
 # =========================================================================
-elif nav == "🕵️ Competitor Ad-Spy Engine":
-    st.markdown('<div class="glass-card-title">🕵️ Meta Ad Library Competitor Auto-Spy</div>', unsafe_allow_html=True)
-    st.write("Reverse-engineer long-running competitor ads, uncover high-converting offers, and exploit market gaps in Surat and Indian local niches.")
+elif nav == "🔍 Policy & Ban-Risk Pre-Flight":
+    st.markdown('<div class="glass-card-title">🔍 Meta Advertising Policy & Ban-Risk Audit</div>', unsafe_allow_html=True)
+    st.write("Scan your ad headlines, reel hooks, and primary text before publishing to prevent ad disapproval or ad account disabled errors.")
 
-    c_col1, c_col2 = st.columns(2)
-    with c_col1:
-        spy_niche = st.text_input("Competitor Niche / Business", value="Digital Marketing Agency")
-    with c_col2:
-        spy_loc = st.text_input("Target Geo / Market", value="Surat, Gujarat")
+    ad_to_check = st.text_area(
+        "Paste Your Ad Copy / Hook to Audit:",
+        value="Are you tired of losing money in business? Guaranteed 10X revenue in 30 days or 100% refund!",
+        height=140
+    )
 
-    from tools.competitor_spy import CompetitorAdSpy
-    if st.button("🔍 Run Competitor Ad-Spy Intelligence", type="primary", use_container_width=True):
-        with st.spinner("Scanning competitor active ads and market gaps..."):
+    if st.button("🛡️ Audit Ad Copy Against Meta Guidelines", type="primary", use_container_width=True):
+        with st.spinner("Auditing against Meta Advertising Standards (Personal Attributes, False Claims, Sensationalism)..."):
+            res = orchestrator.check_meta_ad_policy(ad_to_check)
+            st.markdown(res["review"])
+
+# =========================================================================
+# TAB 5: COMPETITOR AD-SPY ENGINE
+# =========================================================================
+elif nav == "🕵️ Meta Ad Library Competitor Spy":
+    st.markdown('<div class="glass-card-title">🕵️ Meta Ad Library Competitor Spy</div>', unsafe_allow_html=True)
+    st.write("Dissect what active competitor ads, hooks, and offers are running in your target niche to find angles to dominate them.")
+
+    sc1, sc2 = st.columns(2)
+    with sc1:
+        spy_n = st.text_input("Competitor Niche", value="Cafe and Restaurant")
+    with sc2:
+        spy_l = st.text_input("Market / City", value="Surat, Gujarat")
+
+    if st.button("🔍 Run Competitor Intel Scan", type="primary", use_container_width=True):
+        with st.spinner("Scanning competitor active hooks and offers..."):
             spy = CompetitorAdSpy()
-            data = spy.spy_on_niche(spy_niche, spy_loc)
+            data = spy.spy_on_niche(spy_n, spy_l)
+            st.success("✅ Competitor Intel Dossier Formulated!")
 
-            st.success("✅ Competitor Intelligence Dossier Formulated!")
-
-            sc1, sc2 = st.columns(2)
-            with sc1:
-                st.subheader("⚠️ Common Competitor Weaknesses & Pitfalls")
-                for w in data["common_competitor_pitfalls"]:
-                    st.markdown(f"• {w}")
-
-                st.subheader("🎯 WholeUp's Winning Attack Angle")
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.subheader("⚠️ Common Competitor Pitfalls")
+                for p in data["common_competitor_pitfalls"]:
+                    st.markdown(f"• {p}")
+                st.subheader("🎯 Winning Attack Angle")
                 st.info(data["recommended_angle_to_dominate"])
-
-            with sc2:
-                st.subheader("🔥 Long-Running Winning Competitor Hooks")
+            with col_b:
+                st.subheader("🔥 Top Competitor Hooks Running")
                 for h in data["top_competing_hooks"]:
                     st.markdown(f"• **Hook:** `{h}`")
 
 # =========================================================================
-# TAB 4: CAMPAIGN VAULT & HISTORY
+# TAB 6: 9:00 PM WHATSAPP CLIENT REPORTER
 # =========================================================================
-elif nav == "📁 Campaign Vault & History":
-    st.markdown('<div class="glass-card-title">📁 Generated Campaign Vault</div>', unsafe_allow_html=True)
-    st.write("Browse, inspect, and export all generated multi-agent campaign files.")
+elif nav == "📑 9:00 PM WhatsApp Client Reporter":
+    st.markdown('<div class="glass-card-title">📑 9:00 PM WhatsApp Executive Client Reporter</div>', unsafe_allow_html=True)
+    st.write("Generate a formatted performance summary ready to copy-paste into WhatsApp for your clients at 9:00 PM.")
 
-    outputs_dir = Path(__file__).resolve().parent / "outputs"
-    campaign_files = sorted(list(outputs_dir.glob("campaign_*.md")), reverse=True)
+    ads_data = meta_manager.get_ad_metrics(date_preset="maximum")
+    df = pd.DataFrame(ads_data) if ads_data else pd.DataFrame()
+    total_sp = df["spend"].sum() if "spend" in df else 0.0
+    total_conv = (df["leads"].sum() if "leads" in df else 0) + (df["messages"].sum() if "messages" in df else 0)
 
-    if campaign_files:
-        selected_file = st.selectbox("Select Campaign File to Inspect", options=campaign_files, format_func=lambda p: p.name)
-        with open(selected_file, "r", encoding="utf-8") as f:
-            file_body = f.read()
-
-        st.download_button(
-            label=f"📥 Download {selected_file.name}",
-            data=file_body,
-            file_name=selected_file.name,
-            mime="text/markdown"
+    client_name = st.text_input("Client / Account Name", value=f"WholeUp Live ({meta_manager.ad_account_id})")
+    
+    if st.button("📄 Formulate Today's WhatsApp Summary", type="primary", use_container_width=True):
+        rep_gen = ExecutiveReportGenerator(agency_name="WholeUp Agency")
+        rep_text = rep_gen.generate_daily_executive_report(
+            account_name=client_name,
+            total_spend=total_sp,
+            total_leads=total_conv,
+            ads_performance=ads_data,
+            actions_taken=[]
         )
-        st.markdown(file_body)
-    else:
-        st.info("ℹ️ No saved campaigns found yet. Generate your first campaign in the '🎯 5-Agent Campaign Studio'!")
+        st.subheader("📋 WhatsApp-Ready Message (Copy & Send):")
+        st.text_area("Select and Copy:", value=rep_text, height=300)
 
 # =========================================================================
-# TAB 5: GUARDRAILS & API SETTINGS
+# TAB 7: GUARDRAILS & META SETTINGS
 # =========================================================================
-elif nav == "⚙️ Guardrails & API Settings":
-    st.markdown('<div class="glass-card-title">⚙️ Financial Guardrails & API Connections</div>', unsafe_allow_html=True)
-    st.write("Adjust automated stop-loss thresholds, hard budget caps, and API connection credentials.")
+elif nav == "⚙️ Guardrails & Meta Settings":
+    st.markdown('<div class="glass-card-title">⚙️ Financial Guardrails & Meta API Credentials</div>', unsafe_allow_html=True)
+    st.write("Adjust automated stop-loss thresholds, budget scaling ceilings, and Meta API connections.")
 
     g1, g2 = st.columns(2)
     with g1:
-        st.subheader("🛡️ Financial Safeguards")
+        st.subheader("🛡️ Financial Stop-Loss Safeguards")
         st.number_input("Target Cost Per Lead (CPA in ₹)", value=float(settings.TARGET_CPA), key="cfg_cpa")
         st.number_input("Max Acceptable CPC (in ₹)", value=float(settings.MAX_CPC), key="cfg_cpc")
         st.slider("Bleeder Stop-Loss Multiplier (Stop if Spend > X * CPA & 0 Leads)", 1.0, 5.0, float(settings.BLEEDER_SPEND_MULTIPLIER), key="cfg_bleeder")
         st.number_input("Hard Daily Budget Cap (in ₹)", value=float(settings.MAX_DAILY_BUDGET_CAP), key="cfg_cap")
 
     with g2:
-        st.subheader("🔑 Active Credentials")
+        st.subheader("🔑 Active Meta API Connection")
         updated_token = st.text_input("Meta Marketing API Token", value=st.session_state.meta_access_token or "", type="password")
         updated_acc = st.text_input("Connected Meta Ad Account", value=st.session_state.meta_ad_account_id or "act_798915225923265")
         
@@ -747,13 +676,10 @@ elif nav == "⚙️ Guardrails & API Settings":
             st.success("Credentials saved to session! Dashboard updated.")
             st.rerun()
 
-        st.text_input("Gemini API Key", value=settings.GEMINI_API_KEY[:10] + "..." if settings.GEMINI_API_KEY else "", disabled=True)
-        st.text_input("Active LLM Brain Model", value="gemini-2.5-flash", disabled=True)
-
     st.divider()
     st.markdown("""
     #### 💡 How to generate a 60-Day Meta Access Token:
     1. Go to [Meta Graph API Explorer](https://developers.facebook.com/tools/explorer/).
-    2. Select your App and click **Generate Access Token** with permissions: `ads_management`, `ads_read`.
-    3. Click the **(i)** Info icon next to the token, click **Open in Access Token Tool**, then click **Extend Access Token** to get a 60-day token!
+    2. Click the **(i)** Info icon next to the token box.
+    3. Click **Open in Access Token Tool**, then click **Extend Access Token** to get a 60-day token!
     """)
