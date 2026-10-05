@@ -252,7 +252,7 @@ nav = st.sidebar.radio("Navigation", [
     "🛡️ Autonomous Kill & Scale Autopilot",
     "🎬 Meta Ad Creative & Hook Studio",
     "🔍 Policy & Ban-Risk Pre-Flight",
-    "🕵️ Meta Ad Library Competitor Spy",
+    "🦈 360° Autonomous Market Recon",
     "📑 9:00 PM WhatsApp Client Reporter",
     "⚙️ Guardrails & Meta Settings"
 ])
@@ -594,35 +594,101 @@ elif nav == "🔍 Policy & Ban-Risk Pre-Flight":
             st.markdown(res["review"])
 
 # =========================================================================
-# TAB 5: COMPETITOR AD-SPY ENGINE
+# TAB 5: 360° AUTONOMOUS MARKET & COMPETITOR RECON
 # =========================================================================
-elif nav == "🕵️ Meta Ad Library Competitor Spy":
-    st.markdown('<div class="glass-card-title">🕵️ Meta Ad Library Competitor Spy</div>', unsafe_allow_html=True)
-    st.write("Dissect what active competitor ads, hooks, and offers are running in your target niche to find angles to dominate them.")
+elif nav == "🦈 360° Autonomous Market Recon":
+    st.markdown('<div class="glass-card-title">🦈 360° Autonomous Market & Competitor Recon Engine</div>', unsafe_allow_html=True)
+    st.write(
+        "Enter **ANY Website URL** (e.g. `wholeup.in` or any prospective client/rival site) or **Brand Name**. "
+        "The AI agent autonomously crawls the entity, identifies active competitors, spots profit leaks, maps current market demand, "
+        "and builds a battle-ready attack playbook with a 1-click WhatsApp pitch script."
+    )
 
-    sc1, sc2 = st.columns(2)
-    with sc1:
-        spy_n = st.text_input("Competitor Niche", value="Cafe and Restaurant")
-    with sc2:
-        spy_l = st.text_input("Market / City", value="Surat, Gujarat")
+    st.caption("⚡ Quick Brand / URL Presets:")
+    pr1, pr2, pr3, pr4 = st.columns(4)
+    if "recon_target" not in st.session_state:
+        st.session_state.recon_target = "https://wholeup.in"
+    if "recon_city" not in st.session_state:
+        st.session_state.recon_city = "Surat, Gujarat"
 
-    if st.button("🔍 Run Competitor Intel Scan", type="primary", use_container_width=True):
-        with st.spinner("Scanning competitor active hooks and offers..."):
-            spy = CompetitorAdSpy()
-            data = spy.spy_on_niche(spy_n, spy_l)
-            st.success("✅ Competitor Intel Dossier Formulated!")
+    if pr1.button("🌐 wholeup.in (Our Agency)"):
+        st.session_state.recon_target = "https://wholeup.in"
+        st.session_state.recon_city = "Surat & Pan-India"
+        st.rerun()
+    if pr2.button("👗 Radhe Sarees Surat"):
+        st.session_state.recon_target = "Radhe Sarees Surat"
+        st.session_state.recon_city = "Surat, Gujarat"
+        st.rerun()
+    if pr3.button("☕ The Chocolate Room Surat"):
+        st.session_state.recon_target = "The Chocolate Room Surat"
+        st.session_state.recon_city = "Surat, Gujarat"
+        st.rerun()
+    if pr4.button("💎 Kalyan Jewellers"):
+        st.session_state.recon_target = "Kalyan Jewellers"
+        st.session_state.recon_city = "Gujarat & India"
+        st.rerun()
 
-            col_a, col_b = st.columns(2)
-            with col_a:
-                st.subheader("⚠️ Common Competitor Pitfalls")
-                for p in data["common_competitor_pitfalls"]:
-                    st.markdown(f"• {p}")
-                st.subheader("🎯 Winning Attack Angle")
-                st.info(data["recommended_angle_to_dominate"])
-            with col_b:
-                st.subheader("🔥 Top Competitor Hooks Running")
-                for h in data["top_competing_hooks"]:
-                    st.markdown(f"• **Hook:** `{h}`")
+    rc1, rc2 = st.columns([2, 1])
+    with rc1:
+        target_input = st.text_input(
+            "Target Website URL or Brand Name",
+            value=st.session_state.recon_target,
+            placeholder="e.g. https://clientbrand.com, wholeup.in, or Radhe Sarees Surat"
+        )
+    with rc2:
+        target_city = st.text_input(
+            "Target Market / City (Optional)",
+            value=st.session_state.recon_city,
+            placeholder="e.g. Surat, Gujarat or Pan-India"
+        )
+
+    if st.button("🚀 Launch 360° Autonomous Market Recon", type="primary", use_container_width=True):
+        if not target_input.strip():
+            st.warning("⚠️ Please enter a valid website URL or brand name to analyze.")
+        else:
+            with st.spinner("🕷️ Crawling entity, scraping competitor ad signals, and synthesizing 360° market dossier..."):
+                recon_result = orchestrator.run_market_recon(target_input.strip(), target_city.strip())
+                st.session_state["last_recon_result"] = recon_result
+
+    if "last_recon_result" in st.session_state:
+        res = st.session_state["last_recon_result"]
+        site_meta = res.get("site_info", {})
+        dossier_text = res.get("dossier", "")
+
+        st.success(f"✅ 360° Recon Dossier Generated for: **{res.get('target')}**")
+
+        # Quick Health & Signal Metrics
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            st.metric("Entity Status", "🕷️ Crawled & Indexed" if site_meta.get("success") else "🌐 Entity Search Recon")
+        with m2:
+            st.metric("Competitor Sources", f"🔥 {res.get('competitor_sources', 0)} Active Signals")
+        with m3:
+            st.metric("Market Sentiment Feeds", f"📊 {res.get('trends_sources', 0)} Live Signals")
+
+        if site_meta.get("title"):
+            st.caption(f"**Detected Title:** {site_meta.get('title')} | **Meta Desc:** {site_meta.get('meta_description', 'N/A')[:120]}...")
+
+        st.divider()
+
+        # Dossier Presentation in high-end markdown
+        st.markdown(dossier_text)
+
+        st.divider()
+
+        # Download & Action Buttons
+        dl_col1, dl_col2 = st.columns([1, 1])
+        with dl_col1:
+            st.download_button(
+                label="📥 Download 360° Market Dossier (.md)",
+                data=dossier_text,
+                file_name=f"market_recon_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
+                mime="text/markdown",
+                use_container_width=True
+            )
+        with dl_col2:
+            st.info("💡 **Pro-Tip:** Copy the WhatsApp Pitch Message from Section 5 directly into WhatsApp Web to open conversations with prospective clients!")
+
 
 # =========================================================================
 # TAB 6: 9:00 PM WHATSAPP CLIENT REPORTER

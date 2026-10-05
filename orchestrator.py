@@ -19,6 +19,7 @@ from agents.copywriter_elite import CopywriterEliteAgent
 from agents.creative_director import CreativeDirectorAgent
 from agents.agency_director import AgencyDirectorAgent
 from agents.media_buyer_bot import MediaBuyerBot
+from tools.market_recon_agent import AutonomousMarketReconAgent
 
 logger = logging.getLogger("AgencyOrchestrator")
 console = Console()
@@ -34,6 +35,7 @@ class AgencyOrchestrator:
         self.creative_director = CreativeDirectorAgent()
         self.agency_director = AgencyDirectorAgent()
         self.media_buyer = MediaBuyerBot()
+        self.market_recon = AutonomousMarketReconAgent()
 
     def run_full_campaign(self, niche: str, location: str, offer: str) -> Dict[str, Any]:
         """Runs the 5-Agent Pipeline to generate a complete ready-to-launch campaign."""
@@ -160,4 +162,9 @@ Provide:
 """
         review = self.agency_director.call_llm(prompt)
         return {"review": review}
+
+    def run_market_recon(self, target_input: str, location_hint: str = "") -> Dict[str, Any]:
+        """Runs 360-degree Autonomous Market & Competitor Recon Engine on any URL or brand name."""
+        return self.market_recon.analyze_market_360(target_input, location_hint)
+
 

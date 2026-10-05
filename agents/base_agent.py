@@ -63,7 +63,28 @@ Strict Rule: No generic corporate fluff. Be razor sharp, direct, and conversion-
                     if response and response.text:
                         return response.text.strip()
                 except Exception as e:
-                    logger.warning(f"Model {model_name} error: {e}. Trying next candidate...")
+                    logger.warning(f"Model {model_name} error: {e}")
+
+        # Direct Gemini REST API fallback (Zero dependency, works everywhere)
+        if self.gemini_key and not self.gemini_key.startswith("your_"):
+            try:
+                import requests
+                rest_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.gemini_key}"
+                rest_payload = {
+                    "contents": [{
+                        "parts": [{"text": f"{full_system}\n\nTask:\n{prompt}"}]
+                    }]
+                }
+                r = requests.post(rest_url, json=rest_payload, timeout=25)
+                if r.status_code == 200:
+                    data = r.json()
+                    candidates = data.get("candidates", [])
+                    if candidates and "content" in candidates[0]:
+                        parts = candidates[0]["content"].get("parts", [])
+                        if parts and "text" in parts[0]:
+                            return parts[0]["text"].strip()
+            except Exception as re_err:
+                logger.warning(f"Direct Gemini REST API error: {re_err}")
 
         # 2. Try OpenAI
         if self.openai_client:
